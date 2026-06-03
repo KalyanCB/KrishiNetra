@@ -1,0 +1,145 @@
+[project]
+name = "krishinetra"
+version = "0.1.0-dev"
+description = "KrishiNetra modular monolith — decision intelligence for agriculture"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Proprietary" }
+dependencies = [
+    "alembic>=1.14.0",
+    "fastapi>=0.115.0",
+    "httpx>=0.28.0",
+    "langgraph>=0.2.0",
+    "pydantic>=2.10.0",
+    "psycopg2-binary>=2.9.10",
+    "pydantic-settings>=2.6.0",
+    "redis>=5.2.0",
+    "sqlalchemy>=2.0.36",
+    "uvicorn[standard]>=0.32.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black>=24.10.0",
+    "mypy>=1.13.0",
+    "pytest>=8.3.0",
+    "pytest-cov>=6.0.0",
+    "ruff>=0.8.0",
+]
+
+[build-system]
+requires = ["setuptools>=75.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = [
+    "backend*",
+    "shared*",
+    "agents*",
+    "forecasting*",
+    "decision_engine*",
+    "market_intelligence*",
+]
+exclude = ["tests*", "frontend*", "docs*", "infra*", "scripts*"]
+
+# --- Ruff (lint + format per TDS-013 §5.1) ---
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+src = [
+    "backend",
+    "agents",
+    "forecasting",
+    "decision_engine",
+    "market_intelligence",
+    "shared",
+    "tests",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "I",
+    "UP",
+    "B",
+    "SIM",
+]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = [
+    "backend",
+    "shared",
+    "agents",
+    "forecasting",
+    "decision_engine",
+    "market_intelligence",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+
+# --- Black (available alongside Ruff; TDS-013 primary formatter is Ruff) ---
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+include = "\\.pyi?$"
+extend-exclude = "/(frontend|docs|infra|scripts)/"
+
+# --- MyPy ---
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+no_implicit_optional = true
+check_untyped_defs = true
+strict_equality = true
+explicit_package_bases = true
+mypy_path = "."
+packages = [
+    "shared",
+    "decision_engine",
+    "forecasting",
+    "market_intelligence",
+    "agents",
+    "backend",
+]
+exclude = [
+    "tests/",
+    "frontend/",
+    "docs/",
+]
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+
+# --- Pytest ---
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra -q"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
+markers = [
+    "integration: integration tests requiring local docker stack",
+]
+
+# --- Coverage (optional; used in E-00-S05 CI) ---
+[tool.coverage.run]
+source = [
+    "shared",
+    "agents",
+    "forecasting",
+    "decision_engine",
+    "market_intelligence",
+    "backend",
+]
+omit = ["tests/*", "*/__init__.py"]

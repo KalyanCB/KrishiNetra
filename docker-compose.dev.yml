@@ -1,0 +1,32 @@
+# Local development only (E-00-S06, ADR-004). Not production IaC.
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: krishinetra-postgres-dev
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: krishinetra
+      POSTGRES_PASSWORD: krishinetra
+      POSTGRES_DB: krishinetra
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U krishinetra -d krishinetra"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - krishinetra_pg_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: krishinetra-redis-dev
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  krishinetra_pg_data:
