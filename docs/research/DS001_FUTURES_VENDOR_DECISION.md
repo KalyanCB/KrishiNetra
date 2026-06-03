@@ -217,3 +217,20 @@ Track C concluded: treat NCDEX as one licensed venue; pick **one commercial aggr
 | Author | KDO Workstream E |
 | Status | Complete — pending founder approval |
 | Next review | After vendor RFP responses or NDU execution |
+
+---
+
+## 11. PI1 audit confirmation (2026-06-03)
+
+KDO PI1 Track C re-reviewed this document against [REPO_AUDIT_CURRENT_STATE.md](../reviews/REPO_AUDIT_CURRENT_STATE.md) and [COTTON_DATA_SOURCE_VALIDATION.md](./COTTON_DATA_SOURCE_VALIDATION.md). **No change to §6 recommendation.**
+
+| Check | Result |
+|-------|--------|
+| NCDEX KAPAS primary venue | Confirmed |
+| MCX secondary / defer dual-exchange | Confirmed |
+| Commercial aggregator path (Accelpix, Accord, GDF) | Confirmed |
+| Delayed / public bhav dev-only fallback | Confirmed |
+| Bloomberg/Refinitiv deferred Phase 1 | Confirmed |
+| Founder sign-off still required | **Yes** — blocks REQ-071 production ingest |
+
+**Alternatives still valid for RFP:** NCDEX direct EOD NDU (₹15k/yr class), 20-min delayed tier, MCX parallel (deferred), TrueData-style MCX-authorized APIs if cotton liquidity shifts to MCX post-2025 contract revisions.
