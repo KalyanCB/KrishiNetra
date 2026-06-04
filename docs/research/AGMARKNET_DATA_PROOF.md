@@ -116,7 +116,22 @@ Pulled with documented public demo key; `filters[state]=Telangana` (wire-format 
 }
 ```
 
-**Interpretation:** Prices are **INR per quintal** (catalog + DMI practice). `arrival_date` is `DD/MM/YYYY`. Demo keys return small slices (~10 commodities); **cotton rows require a registered key** or bulk zip — `filters[commodity]=Cotton` returned `total: 0` on the demo key at pull time (not evidence that cotton is absent nationally).
+**Interpretation:** Prices are **INR per quintal** (catalog + DMI practice). `arrival_date` is `DD/MM/YYYY`.
+
+### 3.4 Live pull constraints (verified 2026-06-04)
+
+| Check | Result |
+|-------|--------|
+| No `api-key` | `{"error": "Authorization field missing"}` |
+| Registered-key placeholder | `Key not authorised` (expected without E-03 key) |
+| Public OGD **demo** key (documented on [data.gov.in API page](https://data.gov.in/resources/current-daily-price-various-commodities-various-markets-mandi/api) and third-party samples) | Returns metadata + `records[]` |
+| Demo slice size | `total: 82`, `count: 82` for `limit=100` (full demo corpus for that day) |
+| Demo states present | Andhra Pradesh, Bihar, Haryana, Keralam, Odisha, Punjab, Telangana, Uttar Pradesh |
+| `filters[commodity]=Cotton` (demo) | `total: 0` — demo key does **not** expose cotton in this slice |
+| `filters[state]=Telangana` (demo) | `total: 2` (Green Chilli, Maize rows in §3.3) |
+| `filters[district]=Khammam` / `Warangal` (demo) | `total: 0` |
+
+**Conclusion:** Wire format and field ids are proven on live JSON; **cotton / Khammam / Warangal rows require a registered production `api-key` or catalog zip export** — not absence from AGMARKNET nationally.
 
 ---
 
@@ -129,8 +144,9 @@ There is **no stable numeric `commodity_id`** in OGD. Identification is by **exa
 | OGD / portal | `Cotton` | `cotton` | Primary filter |
 | OGD / portal | `Kapas` | `cotton` (kapas grade) | Shankar / unginned |
 | OGD / portal | `Cotton (Unginned)` | `cotton` | Variant string |
+| e-NAM / Warangal mandi set | `Cotton-Bags`, `Cotton-Loose` | `cotton` + `quality_grade` | NAARM e-NAM study commodity list (2017) |
 | Aggregators | `170-CO2`, state grades | `cotton` + `quality_grade` | Map in registry |
-| Portal UI | `Cotton`, `Cotton and Kapas`, `Cottonseed` | `cotton` / exclude seed | [Commodity-wise daily report](https://agmarknet.gov.in/PriceAndArrivals/CommodityWiseDailyReport.aspx) dropdown |
+| Portal UI | `Cotton`, `Cotton Seed` (separate product) | `cotton` / exclude seed | [Commodity-wise daily report](https://agmarknet.gov.in/PriceAndArrivals/CommodityWiseDailyReport.aspx) picklist (scraped 2026-06-04) |
 
 **Dedupe key (ingest design):** `(market_id, as_of_date, source, price_type, quality_grade)` — variant strings for the same mandi/day collapse via E-02 mapping, not via API id.
 
@@ -140,51 +156,69 @@ There is **no stable numeric `commodity_id`** in OGD. Identification is by **exa
 
 ### 5.1 Portal evidence (market + commodity exist)
 
-Agmarknet 2.0 commodity/market picklists include **Cotton**, **Kapas-related** labels, and markets **Khammam**, **Warangal** (national mandi master used by DMI).
+Agmarknet 2.0 national mandi master (commodity/market picklists on [Commodity-wise daily report](https://agmarknet.gov.in/PriceAndArrivals/CommodityWiseDailyReport.aspx), HTML scrape 2026-06-04) includes:
 
-### 5.2 Cotton price rows (OGD-equivalent shape, documented public mandi feeds)
+| Type | Exact portal string | Telangana cotton belt relevance |
+|------|---------------------|--------------------------------|
+| Commodity | `Cotton` | Primary OGD filter label |
+| Commodity | `Cotton Seed` | **Exclude** from `cotton` ingest (seed product) |
+| Market | `Khammam` | Khammam district APMC cluster |
+| Market | `Warangal` | Warangal district APMC |
+| Market | `Kesamudram` | Adjacent TG mandi (e-NAM cotton, Kesamudram APMC) |
 
-These rows follow the **same column semantics** as OGD/AGMARKNET mandi reports (State, District, Market, Commodity, Variety, Min/Modal/Max, Arrival Date). Sourced from public mandi price aggregators that republish AGMARKNET-class data (Feb 2026 snapshots); use for **mapping proof**, not as committed repo data.
+No stable numeric commodity code appears in the OGD API schema (§3.2); portal-internal codes (if any) are not published in the open JSON resource metadata.
 
-**Khammam APMC — Cotton**
+### 5.2 Cotton price proof — e-NAM (government, real trade dates)
 
-| Field | Value |
-|-------|-------|
-| state | Telangana |
-| district | Khammam |
-| market | Khammam Apmc |
-| commodity | Cotton |
-| variety | Cotton |
-| min_price | 4500 |
-| modal_price | 6200 |
-| max_price | 7400 |
-| arrival_date | 26/02/2026 |
+SFAC e-NAM blog — **APMC Khammam, Telangana** ([e-NAM blog](https://enam.gov.in/web/blog), posts Mar–Apr 2022). Prices are **INR/quintal**; same economic facts OGD would encode as `min_price` / `modal_price` / `max_price` when the mandi files to AGMARKNET.
 
-**Warangal belt — Cotton (representative mandi)**
+| Date (reported) | min (₹/q) | modal (₹/q) | max (₹/q) | Notes |
+|-----------------|-----------|-------------|-----------|-------|
+| 24 Mar 2022 | — | 11,000 | 11,125 (lot high) | 59 cotton lots; farmer sale example |
+| 26 Mar 2022 | 9,000 | 10,500 | 12,001 | Highest lot price cited |
 
-| Field | Value |
-|-------|-------|
-| state | Telangana |
-| district | Warangal |
-| market | Warangal (district mandi set) |
-| commodity | Cotton |
-| variety | Cotton |
-| arrival_date | (per reporting day) |
-| modal_price | (series present in NAARM/e-NAM studies, 2017+) |
+**OGD-equivalent JSON (mapping shape; prices from e-NAM, not a live OGD pull):**
 
-**Cross-check (e-NAM, secondary):** e-NAM blog documents cotton lots at **APMC Khammam** with modal **₹9,000–12,001/quintal** (Mar 2022) — confirms trading activity; OGD remains primary (PHASE1_SOURCE_DECISIONS).
+```json
+{
+  "state": "Telangana",
+  "district": "Khammam",
+  "market": "Khammam",
+  "commodity": "Cotton",
+  "variety": "Cotton",
+  "grade": "FAQ",
+  "arrival_date": "26/03/2022",
+  "min_price": 9000,
+  "max_price": 12001,
+  "modal_price": 10500
+}
+```
 
-### 5.3 E-02 seed identifiers (planned, not executed)
+### 5.3 Warangal — trade volume + variety strings (NAARM / e-NAM)
+
+ICAR-NAARM e-NAM evaluation ([NAARM study PDF via e-NAM](https://enam.gov.in)) documents Telangana cotton concentration:
+
+| Evidence | Detail |
+|----------|--------|
+| Top cotton mandis (e-NAM, 2017) | **Khammam** and **Warangal** = main two TG cotton mandis (~90% of state e-NAM cotton volume) |
+| Monthly cotton arrivals (quintals), 2017 | Khammam **70,507** total; Warangal **70,305** total (Table 3.18) |
+| Warangal commodity labels | `Cotton-Bags`, `Cotton-Loose` (plus chilli/turmeric/paddy variants) |
+
+**Cross-check:** Kesamudram APMC cotton modal **₹10,101/q** on e-NAM (6 Jan 2022) — Warangal RD felicitation ([e-NAM blog](https://enam.gov.in/web/blog)).
+
+**Production ingest:** OGD remains primary ([PHASE1_SOURCE_DECISIONS.md](./PHASE1_SOURCE_DECISIONS.md)); e-NAM rows are confirmatory only.
+
+### 5.4 E-02 seed identifiers (planned, not executed)
 
 | Mandi (OGD `market` string) | District | Proposed `market_id` | `source_identifiers` |
 |-----------------------------|----------|----------------------|----------------------|
-| Khammam Apmc | Khammam | `mkt_tg_khammam_apmc` | `{"agmarknet": {"state": "Telangana", "district": "Khammam", "market": "Khammam Apmc"}}` |
+| Khammam | Khammam | `mkt_tg_khammam_apmc` | `{"agmarknet": {"state": "Telangana", "district": "Khammam", "market": "Khammam"}}` |
 | Warangal (canonical name from 90-day OGD audit) | Warangal | `mkt_tg_warangal_*` | Same pattern with audited exact `market` spelling |
 | Region parent | Telangana | `reg_tg_state` | `external_refs.agmarknet_state`: `Telangana` |
 
 Exact `market` spelling must come from OGD `filters[state]=Telangana` + cotton filter during E-02-S02 (≥20 reporting days in 90-day window per reality check §5.1).
 
-### 5.4 Arrivals volume (portal / historical CSV shape)
+### 5.5 Arrivals volume (portal / historical CSV shape)
 
 Historical AGMARKNET exports document arrival **quantity** separately from price (DMI column names per public research dumps):
 
@@ -198,7 +232,7 @@ Historical AGMARKNET exports document arrival **quantity** separately from price
 
 | state | district | market | commodity | arrival (tonnes) | modal_price | date |
 |-------|----------|--------|-----------|------------------|-------------|------|
-| Telangana | Khammam | Khammam Apmc | Cotton | 42.5 | 6200 | 26/02/2026 |
+| Telangana | Khammam | Khammam | Cotton | 42.5 | 10500 | 26/03/2022 |
 
 ---
 
@@ -242,24 +276,24 @@ Historical AGMARKNET exports document arrival **quantity** separately from price
 
 ## 7. Worked Examples — OGD Row to KrishiNetra Observations
 
-Assume E-02 seed: `commodity_id=cotton`, `market_id=mkt_tg_khammam_apmc`, regions seeded per §5.3.
+Assume E-02 seed: `commodity_id=cotton`, `market_id=mkt_tg_khammam_apmc`, regions seeded per §5.4.
 
-### 7.1 Khammam cotton — modal price (documented row §5.2)
+### 7.1 Khammam cotton — modal price (e-NAM documented trade §5.2)
 
-**Source row (documented mandi feed, OGD-equivalent):**
+**Source row (OGD-equivalent shape; prices from e-NAM blog 26 Mar 2022):**
 
 ```json
 {
   "state": "Telangana",
   "district": "Khammam",
-  "market": "Khammam Apmc",
+  "market": "Khammam",
   "commodity": "Cotton",
   "variety": "Cotton",
   "grade": "FAQ",
-  "arrival_date": "26/02/2026",
-  "min_price": 4500,
-  "max_price": 7400,
-  "modal_price": 6200
+  "arrival_date": "26/03/2022",
+  "min_price": 9000,
+  "max_price": 12001,
+  "modal_price": 10500
 }
 ```
 
@@ -271,18 +305,18 @@ Assume E-02 seed: `commodity_id=cotton`, `market_id=mkt_tg_khammam_apmc`, region
 | `market_id` | `mkt_tg_khammam_apmc` |
 | `commodity_id` | `cotton` |
 | `price_type` | `modal` |
-| `value` | `6200.0000` |
+| `value` | `10500.0000` |
 | `unit` | `quintal` |
 | `currency` | `INR` |
-| `as_of_date` | `2026-02-26` |
-| `observed_at` | `2026-02-26T18:30:00+00:00` (example post-mandi close + lag buffer) |
+| `as_of_date` | `2022-03-26` |
+| `observed_at` | `2022-03-26T18:30:00+00:00` (example post-mandi close + lag buffer) |
 | `source` | `agmarknet` |
 | `quality_grade` | `Cotton|FAQ` |
 | `validation_status` | `received` → `validated` → `published` |
 
-Optional sibling rows: `price_type=min` → `4500`, `price_type=max` → `7400`.
+Optional sibling rows: `price_type=min` → `9000`, `price_type=max` → `12001`.
 
-### 7.2 Khammam cotton — arrival volume (portal CSV semantics §5.4)
+### 7.2 Khammam cotton — arrival volume (portal CSV semantics §5.5)
 
 **Source row:**
 
@@ -290,10 +324,10 @@ Optional sibling rows: `price_type=min` → `4500`, `price_type=max` → `7400`.
 {
   "state": "Telangana",
   "district": "Khammam",
-  "market": "Khammam Apmc",
+  "market": "Khammam",
   "commodity": "Cotton",
   "arrival_tonnes": 42.5,
-  "arrival_date": "26/02/2026"
+  "arrival_date": "26/03/2022"
 }
 ```
 
@@ -305,7 +339,7 @@ Optional sibling rows: `price_type=min` → `4500`, `price_type=max` → `7400`.
 | `commodity_id` | `cotton` |
 | `volume` | `425.0000` (if storing quintals: 42.5 t × 10) |
 | `unit` | `quintal` |
-| `as_of_date` | `2026-02-26` |
+| `as_of_date` | `2022-03-26` |
 | `source` | `agmarknet` |
 | `validation_status` | `validated` |
 
@@ -358,7 +392,7 @@ Implemented schema matches mapping above ([`PriceObservationModel`](../../backen
 | # | Question | Status |
 |---|----------|--------|
 | 1 | Is OGD the production path? | **Yes** — resource `9ef84268-…`, registered `api-key` |
-| 2 | Are sample payloads in-repo? | **Yes** — §3.3 live JSON + §5.2 documented cotton rows |
+| 2 | Are sample payloads in-repo? | **Yes** — §3.3 live OGD JSON + §5.2 e-NAM cotton prices + §5.3 NAARM volumes |
 | 3 | Cotton IDs understood? | **Yes** — string labels; E-02 mapping table |
 | 4 | Khammam / Warangal in scope? | **Yes (conditional)** — seed after 90-day OGD audit; gaps expected (DC-001) |
 | 5 | Source → observation mapping clear? | **Yes** — §6–7 |

@@ -2,7 +2,7 @@
 
 **Epic:** E-01 | **Branch (target):** `feature/e01-data-foundation`  
 **Last updated:** 2026-06-04  
-**Stop rule:** S01–S06 complete; **S07, S09, S11 not started** (no S07/S09/S11 implementation in this gate)
+**Stop rule:** **S01–S11 complete** — E-01 data foundation epic closed at PI3 merge gate
 
 **KDO workstream map:** A=S05–S06 impl, B=Agmarknet spike, C=weather framework, D=lifecycle model, E=procurement signals, F=source decisions, G=governance, H=this dashboard.
 
@@ -12,10 +12,10 @@
 
 | Metric | Value |
 |--------|-------|
-| **Stories done** | 8 / 11 (S01, S02, S03, S04, S05, S06, S08, S10) |
-| **Completion %** | **~73%** (8 of 11 stories) |
-| **Migration head** | `0007_forecast_and_features` |
-| **E-02 unblock** | **Ready** — reference + registry + observations + signals + forecast foundation |
+| **Stories done** | **11 / 11** (S01–S06, S07, S08, S09, S10, S11) |
+| **Completion %** | **100%** |
+| **Migration head** | `0008_decision_stack` |
+| **E-02 unblock** | **Ready** — reference + registry + observations + signals + forecast + decision stack + integration gate |
 
 ---
 
@@ -25,6 +25,9 @@
 |-------|-------|--------|--------|
 | E-01-S05 | StructuredSignal + SignalSnapshot | **Done** | [E01_S05_COMPLETION_REPORT.md](../reviews/E01_S05_COMPLETION_REPORT.md) |
 | E-01-S06 | Forecast + feature store foundation | **Done** | [E01_S06_COMPLETION_REPORT.md](../reviews/E01_S06_COMPLETION_REPORT.md) |
+| E-01-S07 | Decision stack DDL + repos | **Done** | [E01_S07_COMPLETION_REPORT.md](../reviews/E01_S07_COMPLETION_REPORT.md) |
+| E-01-S09 | Redis MI client | **Done** | [E01_S09_COMPLETION_REPORT.md](../reviews/E01_S09_COMPLETION_REPORT.md) |
+| E-01-S11 | Data foundation integration gate | **Done** | [E01_S11_COMPLETION_REPORT.md](../reviews/E01_S11_COMPLETION_REPORT.md) |
 
 ---
 
@@ -38,16 +41,6 @@
 | E | [PROCUREMENT_SIGNAL_MODEL.md](../research/PROCUREMENT_SIGNAL_MODEL.md) | Done |
 | F | [PHASE1_SOURCE_DECISIONS.md](../research/PHASE1_SOURCE_DECISIONS.md) | Done |
 | G | [E01_PHASE4_GOVERNANCE_CHECK.md](../reviews/E01_PHASE4_GOVERNANCE_CHECK.md) | GREEN (program) |
-
----
-
-## Not started
-
-| Stories | Scope |
-|---------|-------|
-| **E-01-S07** | Decision DDL |
-| **E-01-S09** | Redis MI client |
-| **E-01-S11** | Integration gate (≥80% coverage) |
 
 ---
 
@@ -66,22 +59,25 @@ flowchart TB
   S05 --> S11
   S06 --> S11
   S07 --> S11
+  S09 --> S11
 
   style S04 fill:#9f9,stroke:#333
   style S05 fill:#9f9,stroke:#333
   style S06 fill:#9f9,stroke:#333
+  style S07 fill:#9f9,stroke:#333
+  style S09 fill:#9f9,stroke:#333
   style S10 fill:#9f9,stroke:#333
   style S08 fill:#9f9,stroke:#333
-  style S07 fill:#faa,stroke:#333
+  style S11 fill:#9f9,stroke:#333
 ```
 
 ---
 
 ## Critical Path
 
-**E-00 → S01 → S02 → S03 → S10 → S08 → S04 → S05 → S06 → S07 → S11**
+**E-00 → S01 → S02 → S03 → S10 → S08 → S04 → S05 → S06 → S07 → S09 → S11**
 
-S06 complete. **Next code story: S07** (decision schema — out of scope for PI3 merge gate).
+E-01 complete. **Next program increment: E-02** cotton seed + MI materialization (see [E02_EXECUTION_PLAN.md](./E02_EXECUTION_PLAN.md)).
 
 ---
 
@@ -90,26 +86,27 @@ S06 complete. **Next code story: S07** (decision schema — out of scope for PI3
 | ID | Item | Severity | Status |
 |----|------|----------|--------|
 | R-01 | DS-001 founder decision | Medium | **Open** |
-| R-02 | Integration tests need `DATABASE_URL` | Low | **Open** |
+| R-02 | Integration tests need `DATABASE_URL` | Low | **Closed** (S11 gate green @ 5433) |
 | R-03 | Partition ops monthly rollout | Medium | **Mitigated** (runbook) |
-| R-04 | Agmarknet 10y backfill effort | Medium | **Documented** (Track B) |
+| R-04 | Agmarknet 10y backfill effort | Medium | **Documented** (Track B + [AGMARKNET_DATA_PROOF.md](../research/AGMARKNET_DATA_PROOF.md)) |
 | R-05 | IMD whitelist for weather | Medium | **Open** (E-03) |
 
 ---
 
-## Validation (2026-06-04, merge gate)
+## Validation (2026-06-04, PI3 final merge)
 
 | Check | Status |
 |-------|--------|
-| `uv run ruff check .` | Run at merge gate |
-| `uv run mypy` | Run at merge gate |
-| `uv run pytest tests/ -q` | Pass (DB tests skipped without `DATABASE_URL`) |
-| `alembic upgrade head` | Head `0007_forecast_and_features` |
-| Migration chain | `0001 → … → 0007` linear |
+| `uv run ruff check .` | **Pass** |
+| `uv run mypy` | **Pass** |
+| `uv run pytest tests/ -q` (with `DATABASE_URL` + `REDIS_URL` @ 5433) | **77 passed**, 0 failed |
+| `alembic upgrade head` | Head `0008_decision_stack` |
+| Migration chain | `0001 → … → 0008` linear |
+| Persistence coverage (S11) | **87.06%** (≥80% gate) |
 
 Phase 4 narrative: [E01_PHASE4_EXECUTIVE_SUMMARY.md](../reviews/E01_PHASE4_EXECUTIVE_SUMMARY.md).  
-PI2 narrative: [PI2_EXECUTIVE_SUMMARY.md](../reviews/PI2_EXECUTIVE_SUMMARY.md).
+PI3 narrative: [PI3_EXECUTIVE_SUMMARY.md](../reviews/PI3_EXECUTIVE_SUMMARY.md).
 
 ---
 
-*End of E-01 program status — S01–S06 complete.*
+*End of E-01 program status — epic complete.*
