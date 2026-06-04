@@ -193,6 +193,22 @@ def _cleanup_cotton(session: Session) -> None:
     session.execute(
         text("DELETE FROM weather_observation WHERE commodity_id = 'cotton'")
     )
+    session.execute(
+        text(
+            """
+            DELETE FROM weather_observation
+            WHERE region_id IN (
+                SELECT region_id FROM region WHERE commodity_id = 'cotton'
+            )
+            """
+        )
+    )
+    session.execute(
+        text("DELETE FROM structured_signal WHERE commodity_id = 'cotton'")
+    )
+    session.execute(
+        text("DELETE FROM signal_snapshot WHERE commodity_id = 'cotton'")
+    )
     for market in session.scalars(
         select(MarketModel).where(MarketModel.commodity_id == "cotton")
     ):

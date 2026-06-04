@@ -6,7 +6,7 @@ from datetime import date, datetime
 from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import Date, DateTime, ForeignKey, Index, Numeric, String, func
+from sqlalchemy import Date, DateTime, ForeignKey, Index, Numeric, String, func, text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column
@@ -61,6 +61,7 @@ class StructuredSignalModel(Base):
         nullable=False,
     )
     agent_version: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    trace_id: Mapped[UUID | None] = mapped_column(PGUUID(as_uuid=True), nullable=True)
 
 
 class SignalSnapshotModel(Base):
@@ -88,6 +89,10 @@ class SignalSnapshotModel(Base):
         nullable=False,
     )
     signal_ids: Mapped[list] = mapped_column(JSONB, nullable=False)
+    signals: Mapped[list] = mapped_column(
+        JSONB, nullable=False, server_default=text("'[]'::jsonb")
+    )
+    trace_id: Mapped[UUID | None] = mapped_column(PGUUID(as_uuid=True), nullable=True)
     snapshot_hash: Mapped[str] = mapped_column(String(64), nullable=False)
     data_quality_snapshot_id: Mapped[UUID | None] = mapped_column(
         PGUUID(as_uuid=True),

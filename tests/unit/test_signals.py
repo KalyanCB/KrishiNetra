@@ -25,7 +25,9 @@ from backend.app.persistence.repositories.signal import (
     StructuredSignalRepository,
 )
 from backend.app.persistence.validation.signal import (
+    PI9_SIGNAL_TYPE,
     SignalValidationError,
+    build_snapshot_signals,
     compute_snapshot_hash,
     validate_bounded_decimal,
 )
@@ -66,6 +68,7 @@ def _signal_payload(
     *,
     value: Decimal = Decimal("0.55"),
     direction: Direction = Direction.BULLISH,
+    as_of_date: date = date(2026, 6, 4),
 ) -> dict[str, object]:
     return {
         "agent_type": agent_type.value,
@@ -74,6 +77,7 @@ def _signal_payload(
         "magnitude": Decimal("0.40"),
         "confidence": Decimal("0.75"),
         "signal_components": {"source": "test"},
+        "as_of_date": as_of_date,
     }
 
 
@@ -233,6 +237,7 @@ def test_six_signals_and_snapshot(migrated_database: str) -> None:
             signal_repo.insert_signal(row)
             inserted.append(row)
 
+        trace_id = uuid4()
         snapshot = SignalSnapshotModel(
             snapshot_id=uuid4(),
             commodity_id=commodity_id,
@@ -240,6 +245,7 @@ def test_six_signals_and_snapshot(migrated_database: str) -> None:
             registry_id=registry.registry_id,
             signal_ids=[str(row.signal_id) for row in inserted],
             snapshot_hash="",
+            trace_id=trace_id,
             data_quality_snapshot_id=quality.quality_snapshot_id,
         )
         snapshot_repo.insert_snapshot(snapshot, signal_payloads=payloads)
@@ -252,12 +258,17 @@ def test_six_signals_and_snapshot(migrated_database: str) -> None:
         )
         assert loaded is not None
         assert len(loaded.signal_ids) == 6
+        assert loaded.trace_id == trace_id
+        assert len(loaded.signals) == 6
+        assert loaded.signals[0][PI9_SIGNAL_TYPE] in {a.value for a in AgentType}
         assert loaded.snapshot_hash == compute_snapshot_hash(
             commodity_id=commodity_id,
             as_of_date=date(2026, 6, 4),
             registry_id=registry.registry_id,
             signals=payloads,
+            trace_id=trace_id,
         )
+        assert loaded.signals == build_snapshot_signals(payloads)
         assert loaded.data_quality_snapshot_id == quality.quality_snapshot_id
 
         signals = signal_repo.list_by_commodity_date(

@@ -1,9 +1,11 @@
-"""Structured signal contract stub (TDS-004 §3, REQ-060)."""
+"""Structured signal contract (TDS-004 §3, REQ-060)."""
 
 from __future__ import annotations
 
 from datetime import datetime
 from decimal import Decimal
+from typing import Any
+from uuid import UUID
 
 from pydantic import BaseModel, Field
 
@@ -20,3 +22,5 @@ class StructuredSignal(BaseModel):
     magnitude: Decimal = Field(ge=0, le=1)
     confidence: Decimal = Field(ge=0, le=1)
     as_of_timestamp: datetime
+    signal_components: dict[str, Any] | None = None
+    source_refs: list[UUID] | None = None

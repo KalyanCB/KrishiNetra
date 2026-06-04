@@ -37,6 +37,9 @@ from backend.app.services.validation.observation_validation_service import (
     ObservationValidationService,
     render_observation_validation_report_markdown,
 )
+from backend.app.services.validation.weather_observation_validation_service import (
+    WeatherObservationValidationService,
+)
 
 DEFAULT_REPORT = (
     Path(__file__).resolve().parents[1]
@@ -47,7 +50,9 @@ DEFAULT_REPORT = (
 
 
 def _parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Validate pending Agmarknet observations")
+    parser = argparse.ArgumentParser(
+        description="Validate pending Agmarknet observations"
+    )
     parser.add_argument(
         "--commodity-id",
         default=COTTON_COMMODITY_ID,
@@ -90,6 +95,11 @@ def _parse_args() -> argparse.Namespace:
         "--refresh-snapshot",
         action="store_true",
         help="Refresh data_quality_snapshot after validation",
+    )
+    parser.add_argument(
+        "--include-weather",
+        action="store_true",
+        help="Also validate pending NASA POWER weather rows (parallel E-03 path)",
     )
     return parser.parse_args()
 
@@ -164,12 +174,29 @@ def main() -> int:
                 window_end=args.window_end,
                 dry_run=args.dry_run,
             )
-            penalty_before, penalty_after, score_before, score_after = _estimate_dqs_impact(
-                session,
-                validated_count=result.total_validated,
-                rejected_count=result.total_rejected,
-                window_start=args.window_start,
-                window_end=args.window_end,
+            weather_result = None
+            pre_weather = 0
+            if args.include_weather:
+                weather_service = WeatherObservationValidationService(session)
+                pre_weather = weather_service.count_pending(
+                    commodity_id=args.commodity_id,
+                    window_start=args.window_start,
+                    window_end=args.window_end,
+                )
+                weather_result = weather_service.validate_pending(
+                    commodity_id=args.commodity_id,
+                    window_start=args.window_start,
+                    window_end=args.window_end,
+                    dry_run=args.dry_run,
+                )
+            penalty_before, penalty_after, score_before, score_after = (
+                _estimate_dqs_impact(
+                    session,
+                    validated_count=result.total_validated,
+                    rejected_count=result.total_rejected,
+                    window_start=args.window_start,
+                    window_end=args.window_end,
+                )
             )
 
             if args.write_report:
@@ -232,6 +259,17 @@ def main() -> int:
             "rejected": result.arrival.rejected,
             "issue_counts": result.arrival.issue_counts,
         },
+        "weather": (
+            {
+                "pending_before": pre_weather,
+                "examined": weather_result.weather.examined,
+                "validated": weather_result.weather.validated,
+                "rejected": weather_result.weather.rejected,
+                "issue_counts": weather_result.weather.issue_counts,
+            }
+            if weather_result is not None
+            else None
+        ),
         "dqs_impact": {
             "anomaly_penalty_before": round(penalty_before, 4),
             "anomaly_penalty_after": round(penalty_after, 4),

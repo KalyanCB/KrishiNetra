@@ -1,9 +1,9 @@
-"""StructuredSignal and SignalSnapshot repositories — TDS-006 §3.8–3.9 (E-01-S05)."""
+"""StructuredSignal and SignalSnapshot repositories — TDS-006 §3.8–3.9 (E-01-S05, PI9)."""
 
 from __future__ import annotations
 
 from datetime import date
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -14,11 +14,14 @@ from backend.app.persistence.models.signal import (
 )
 from backend.app.persistence.repositories.base import BaseRepository
 from backend.app.persistence.validation.signal import (
+    build_snapshot_signals,
     compute_snapshot_hash,
     validate_agent_type,
     validate_bounded_decimal,
     validate_direction,
+    validate_trace_id,
 )
+from shared.persistence.contracts import block_immutable_update
 
 
 class StructuredSignalRepository(BaseRepository[StructuredSignalModel]):
@@ -57,6 +60,10 @@ class StructuredSignalRepository(BaseRepository[StructuredSignalModel]):
         )
         return list(self._session.scalars(stmt).all())
 
+    def update(self, entity: StructuredSignalModel) -> StructuredSignalModel:
+        block_immutable_update(self._model)
+        return entity  # unreachable
+
 
 class SignalSnapshotRepository(BaseRepository[SignalSnapshotModel]):
     """Insert-only daily signal bundles for replay and forecast input."""
@@ -77,16 +84,35 @@ class SignalSnapshotRepository(BaseRepository[SignalSnapshotModel]):
         )
         return self._session.scalars(stmt).first()
 
+    def get_snapshot_by_trace_id(
+        self, trace_id: UUID
+    ) -> SignalSnapshotModel | None:
+        stmt = select(SignalSnapshotModel).where(
+            SignalSnapshotModel.trace_id == trace_id
+        )
+        return self._session.scalars(stmt).first()
+
     def insert_snapshot(
         self,
         entity: SignalSnapshotModel,
         *,
         signal_payloads: list[dict[str, object]],
     ) -> SignalSnapshotModel:
+        if entity.trace_id is None:
+            entity.trace_id = uuid4()
+        validate_trace_id(entity.trace_id)
+        entity.signals = build_snapshot_signals(
+            [dict(payload) for payload in signal_payloads]
+        )
         entity.snapshot_hash = compute_snapshot_hash(
             commodity_id=entity.commodity_id,
             as_of_date=entity.as_of_date,
             registry_id=entity.registry_id,
-            signals=signal_payloads,
+            signals=[dict(payload) for payload in signal_payloads],
+            trace_id=entity.trace_id,
         )
         return self.insert(entity)
+
+    def update(self, entity: SignalSnapshotModel) -> SignalSnapshotModel:
+        block_immutable_update(self._model)
+        return entity  # unreachable

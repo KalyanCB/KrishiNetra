@@ -65,3 +65,20 @@ class ArrivalObservationRepository(BaseRepository[ArrivalObservationModel]):
         self, observation_id: UUID, *, as_of_date: date
     ) -> ArrivalObservationModel | None:
         return self._session.get(self._model, (observation_id, as_of_date))
+
+    def list_by_commodity_date_range(
+        self,
+        commodity_id: str,
+        start: date,
+        end: date,
+    ) -> list[ArrivalObservationModel]:
+        stmt = (
+            select(ArrivalObservationModel)
+            .where(
+                ArrivalObservationModel.commodity_id == commodity_id,
+                ArrivalObservationModel.as_of_date >= start,
+                ArrivalObservationModel.as_of_date <= end,
+            )
+            .order_by(ArrivalObservationModel.as_of_date.desc())
+        )
+        return list(self._session.scalars(stmt).all())

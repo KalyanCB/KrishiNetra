@@ -42,7 +42,7 @@ def test_alembic_upgrade_head(migrated_database: str, alembic_config: Config) ->
     with engine.connect() as conn:
         assert (
             conn.execute(text("SELECT version_num FROM alembic_version")).scalar()
-            == "0011_observation_rejected"
+            == "0012_signal_pi9_contract"
         )
     engine.dispose()
 
@@ -52,7 +52,7 @@ def test_alembic_upgrade_head(migrated_database: str, alembic_config: Config) ->
     reason="DATABASE_URL required",
 )
 def test_alembic_downgrade_one_revision(alembic_config: Config) -> None:
-    """Reversible migrations: downgrade one step from head (0011 -> 0010)."""
+    """Reversible migrations: downgrade one step from head (0012 -> 0011)."""
     command.upgrade(alembic_config, "head")
     command.downgrade(alembic_config, "-1")
     db_url = os.environ["DATABASE_URL"]
@@ -74,7 +74,7 @@ def test_alembic_downgrade_one_revision(alembic_config: Config) -> None:
     with engine.connect() as conn:
         assert (
             conn.execute(text("SELECT version_num FROM alembic_version")).scalar()
-            == "0010_partition_backfill"
+            == "0011_observation_rejected"
         )
     command.upgrade(alembic_config, "head")
     engine.dispose()
