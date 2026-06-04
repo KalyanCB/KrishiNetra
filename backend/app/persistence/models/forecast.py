@@ -112,6 +112,66 @@ class FeatureVectorModel(Base):
     feature_value: Mapped[dict] = mapped_column(JSONB, nullable=False)
 
 
+class ForecastModelRegistryModel(Base):
+    """Trained-model metadata — PI11 Track E; pins version, window, metrics, features."""
+
+    __tablename__ = "forecast_model_registry"
+    __table_args__ = (
+        Index(
+            "uq_forecast_model_registry_version_window_hash",
+            "commodity_id",
+            "registry_id",
+            "model_version",
+            "training_window_start",
+            "training_window_end",
+            "feature_set_hash",
+            unique=True,
+        ),
+        Index(
+            "ix_forecast_model_registry_commodity_model",
+            "commodity_id",
+            "model_version",
+        ),
+        Index(
+            "ix_forecast_model_registry_feature_set_id",
+            "feature_set_id",
+        ),
+    )
+
+    forecast_model_registry_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True),
+        primary_key=True,
+        server_default=func.gen_random_uuid(),
+    )
+    commodity_id: Mapped[str] = mapped_column(
+        String(64),
+        ForeignKey("commodity.commodity_id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    registry_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey("commodity_registry.registry_id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    model_version: Mapped[str] = mapped_column(String(64), nullable=False)
+    model_family: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    horizon_days: Mapped[int] = mapped_column(nullable=False, server_default="30")
+    training_window_start: Mapped[date] = mapped_column(Date, nullable=False)
+    training_window_end: Mapped[date] = mapped_column(Date, nullable=False)
+    metrics: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    feature_set_id: Mapped[UUID | None] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey("feature_set.feature_set_id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    feature_set_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )
+
+
 class ForecastVersionModel(Base):
     """Immutable versioned forecast output per as_of_date and model run."""
 
@@ -127,6 +187,7 @@ class ForecastVersionModel(Base):
         ),
         Index("ix_forecast_version_as_of_date_published", "as_of_date", "is_published"),
         Index("ix_forecast_version_snapshot_id", "snapshot_id"),
+        Index("ix_forecast_version_model_registry_id", "forecast_model_registry_id"),
     )
 
     forecast_version_id: Mapped[UUID] = mapped_column(
@@ -163,6 +224,14 @@ class ForecastVersionModel(Base):
     feature_set_ref: Mapped[UUID | None] = mapped_column(
         PGUUID(as_uuid=True),
         ForeignKey("feature_set.feature_set_id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    forecast_model_registry_id: Mapped[UUID | None] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey(
+            "forecast_model_registry.forecast_model_registry_id",
+            ondelete="SET NULL",
+        ),
         nullable=True,
     )
     composed_signal_refs: Mapped[list | None] = mapped_column(JSONB, nullable=True)

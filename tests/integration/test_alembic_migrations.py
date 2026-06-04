@@ -32,6 +32,7 @@ def test_alembic_upgrade_head(migrated_database: str, alembic_config: Config) ->
     assert "forecast_version" in tables
     assert "feature_set" in tables
     assert "feature_vector" in tables
+    assert "forecast_model_registry" in tables
     assert "user_context" in tables
     assert "decision_session" in tables
     assert "recommendation" in tables
@@ -39,11 +40,12 @@ def test_alembic_upgrade_head(migrated_database: str, alembic_config: Config) ->
     assert "outcome" in tables
     assert "weather_observation" in tables
     assert "policy_observation" in tables
+    assert "forecast_quality_metric" in tables
 
     with engine.connect() as conn:
         assert (
             conn.execute(text("SELECT version_num FROM alembic_version")).scalar()
-            == "0014_pi10_head_merge"
+            == "0016_forecast_model_registry"
         )
     engine.dispose()
 

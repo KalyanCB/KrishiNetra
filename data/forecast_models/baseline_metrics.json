@@ -1,0 +1,41 @@
+[
+  {
+    "fold_count": 3,
+    "horizon_days": 30,
+    "metrics": {
+      "mae": 450.0,
+      "mape_pct": 5.781214,
+      "n_samples": 60,
+      "rmse": 450.0
+    },
+    "mode": "fixture",
+    "model_name": "naive_persistence",
+    "model_path": "data/forecast_models/30d/naive_persistence.joblib"
+  },
+  {
+    "fold_count": 3,
+    "horizon_days": 30,
+    "metrics": {
+      "mae": 0.0,
+      "mape_pct": 0.0,
+      "n_samples": 60,
+      "rmse": 0.0
+    },
+    "mode": "fixture",
+    "model_name": "linear_regression",
+    "model_path": "data/forecast_models/30d/linear_regression.joblib"
+  },
+  {
+    "fold_count": 3,
+    "horizon_days": 30,
+    "metrics": {
+      "mae": 164.3,
+      "mape_pct": 2.098119,
+      "n_samples": 60,
+      "rmse": 185.68134
+    },
+    "mode": "fixture",
+    "model_name": "random_forest",
+    "model_path": "data/forecast_models/30d/random_forest.joblib"
+  }
+]

@@ -48,7 +48,7 @@ def migrated_database(alembic_config: Config) -> str:
         version = conn.execute(
             text("SELECT version_num FROM alembic_version")
         ).scalar_one()
-        assert version == "0014_pi10_head_merge"
+        assert version == "0016_forecast_model_registry"
 
     engine.dispose()
     return db_url

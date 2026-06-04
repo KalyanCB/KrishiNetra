@@ -13,6 +13,7 @@ from backend.app.persistence.models.forecast import (
     FeatureVectorModel,
     ForecastFeatureSnapshotModel,
     ForecastModel,
+    ForecastModelRegistryModel,
     ForecastVersionModel,
 )
 from backend.app.persistence.repositories.base import (
@@ -25,6 +26,12 @@ from backend.app.persistence.validation.forecast import (
 from backend.app.persistence.validation.forecast_features import (
     compute_feature_hash,
     validate_trace_id,
+)
+from backend.app.persistence.validation.forecast_model_registry import (
+    validate_feature_set_hash,
+    validate_horizon_days,
+    validate_metrics,
+    validate_training_window,
 )
 from shared.persistence.contracts import block_immutable_update
 
@@ -123,6 +130,52 @@ class FeatureVectorRepository(BaseRepository[FeatureVectorModel]):
 
     def insert_vector(self, entity: FeatureVectorModel) -> FeatureVectorModel:
         return self.insert(entity)
+
+
+class ForecastModelRegistryRepository(ImmutableVersionRepository[ForecastModelRegistryModel]):
+    """Insert-only trained-model registry — PI11 Track E."""
+
+    def __init__(self, session: Session) -> None:
+        super().__init__(session, ForecastModelRegistryModel)
+
+    def insert_entry(
+        self, entity: ForecastModelRegistryModel
+    ) -> ForecastModelRegistryModel:
+        validate_training_window(
+            start=entity.training_window_start,
+            end=entity.training_window_end,
+        )
+        validate_horizon_days(entity.horizon_days)
+        validate_feature_set_hash(entity.feature_set_hash)
+        entity.metrics = validate_metrics(entity.metrics)
+        return self.insert(entity)
+
+    def get_entry(
+        self, forecast_model_registry_id: UUID
+    ) -> ForecastModelRegistryModel | None:
+        return self._session.get(
+            ForecastModelRegistryModel, forecast_model_registry_id
+        )
+
+    def get_by_model_version(
+        self,
+        *,
+        commodity_id: str,
+        registry_id: UUID,
+        model_version: str,
+        training_window_start: date,
+        training_window_end: date,
+        feature_set_hash: str,
+    ) -> ForecastModelRegistryModel | None:
+        stmt = select(ForecastModelRegistryModel).where(
+            ForecastModelRegistryModel.commodity_id == commodity_id,
+            ForecastModelRegistryModel.registry_id == registry_id,
+            ForecastModelRegistryModel.model_version == model_version,
+            ForecastModelRegistryModel.training_window_start == training_window_start,
+            ForecastModelRegistryModel.training_window_end == training_window_end,
+            ForecastModelRegistryModel.feature_set_hash == feature_set_hash,
+        )
+        return self._session.scalars(stmt).first()
 
 
 class ForecastVersionRepository(ImmutableVersionRepository[ForecastVersionModel]):

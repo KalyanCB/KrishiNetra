@@ -18,8 +18,12 @@ from backend.app.persistence.repositories.forecast import (
     FeatureSetRepository,
     FeatureVectorRepository,
     ForecastFeatureSnapshotRepository,
+    ForecastModelRegistryRepository,
     ForecastRepository,
     ForecastVersionRepository,
+)
+from backend.app.persistence.repositories.forecast_quality import (
+    ForecastQualityMetricRepository,
 )
 from backend.app.persistence.repositories.futures import FuturesObservationRepository
 from backend.app.persistence.repositories.observation import (
@@ -55,11 +59,13 @@ class UnitOfWork:
         self.signal_snapshots = SignalSnapshotRepository(self.session)
         self.forecasts = ForecastRepository(self.session)
         self.forecast_versions = ForecastVersionRepository(self.session)
+        self.forecast_model_registry = ForecastModelRegistryRepository(self.session)
         self.feature_sets = FeatureSetRepository(self.session)
         self.feature_vectors = FeatureVectorRepository(self.session)
         self.forecast_feature_snapshots = ForecastFeatureSnapshotRepository(
             self.session
         )
+        self.forecast_quality_metrics = ForecastQualityMetricRepository(self.session)
         self.user_contexts = UserContextRepository(self.session)
         self.decision_sessions = DecisionSessionRepository(self.session)
         self.recommendations = RecommendationRepository(self.session)

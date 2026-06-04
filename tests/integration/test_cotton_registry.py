@@ -27,6 +27,7 @@ pytestmark = pytest.mark.integration
 
 def _cleanup_cotton(session: Session) -> None:
     import os
+
     from sqlalchemy import text
 
     if os.environ.get("KRISHI_PRESERVE_INTEGRATION_CORPUS"):

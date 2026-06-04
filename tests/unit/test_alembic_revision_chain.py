@@ -13,7 +13,7 @@ def test_alembic_revision_chain_linear() -> None:
     cfg = Config(str(root / "alembic.ini"))
     script = ScriptDirectory.from_config(cfg)
     heads = script.get_heads()
-    assert heads == ["0014_pi10_head_merge"]
+    assert heads == ["0016_forecast_model_registry"]
     revisions = list(script.walk_revisions(base="base", head=heads[0]))
     ids = [rev.revision for rev in reversed(revisions)]
     assert ids == [
@@ -33,6 +33,8 @@ def test_alembic_revision_chain_linear() -> None:
         "0013_forecast_feature_snapshot",
         "0013_futures_observations",
         "0014_pi10_head_merge",
+        "0015_forecast_quality_metric",
+        "0016_forecast_model_registry",
     ]
 
 

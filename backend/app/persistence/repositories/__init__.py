@@ -18,6 +18,9 @@ from backend.app.persistence.repositories.forecast import (
     ForecastRepository,
     ForecastVersionRepository,
 )
+from backend.app.persistence.repositories.forecast_quality import (
+    ForecastQualityMetricRepository,
+)
 from backend.app.persistence.repositories.futures import FuturesObservationRepository
 from backend.app.persistence.repositories.observation import (
     ArrivalObservationRepository,
@@ -40,6 +43,7 @@ __all__ = [
     "FeatureVectorRepository",
     "ForecastFeatureSnapshotRepository",
     "ForecastRepository",
+    "ForecastQualityMetricRepository",
     "ForecastVersionRepository",
     "ArrivalObservationRepository",
     "BaseRepository",

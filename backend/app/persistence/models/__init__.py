@@ -14,9 +14,11 @@ from backend.app.persistence.models.forecast import (
     FeatureVectorModel,
     ForecastFeatureSnapshotModel,
     ForecastModel,
+    ForecastModelRegistryModel,
     ForecastStatus,
     ForecastVersionModel,
 )
+from backend.app.persistence.models.forecast_quality import ForecastQualityMetricModel
 from backend.app.persistence.models.futures import (
     FUTURES_OBSERVATION_RETENTION_YEARS,
     FuturesEnvironment,
@@ -73,7 +75,9 @@ __all__ = [
     "FeatureVectorModel",
     "ForecastFeatureSnapshotModel",
     "ForecastModel",
+    "ForecastModelRegistryModel",
     "ForecastStatus",
+    "ForecastQualityMetricModel",
     "ForecastVersionModel",
     "OutcomeModel",
     "OutcomeValidationStatus",

@@ -174,6 +174,7 @@ def test_activate_registry_swaps_active(
 
 def _cleanup_cotton(session: Session) -> None:
     import os
+
     from sqlalchemy import select, text
 
     from backend.app.persistence.models.reference import (
