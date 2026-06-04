@@ -1,3 +1,5 @@
-"""API DTO contracts (TDS-010). Placeholder for E-09."""
+"""Cross-package contracts (TDS-010, TDS-009)."""
 
-# Intentionally empty until E-09 implements request/response DTOs.
+from shared.contracts.mi_snapshot import MISnapshotPayload
+
+__all__ = ["MISnapshotPayload"]

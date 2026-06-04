@@ -4,6 +4,13 @@ from backend.app.persistence.repositories.base import (
     BaseRepository,
     ImmutableVersionRepository,
 )
+from backend.app.persistence.repositories.decision import (
+    DecisionSessionRepository,
+    OutcomeRepository,
+    RecommendationRepository,
+    RecommendationVersionRepository,
+    UserContextRepository,
+)
 from backend.app.persistence.repositories.forecast import (
     FeatureSetRepository,
     FeatureVectorRepository,
@@ -23,6 +30,7 @@ from backend.app.persistence.repositories.signal import (
 )
 
 __all__ = [
+    "DecisionSessionRepository",
     "FeatureSetRepository",
     "FeatureVectorRepository",
     "ForecastRepository",
@@ -33,7 +41,11 @@ __all__ = [
     "CommodityRepository",
     "DataQualitySnapshotRepository",
     "ImmutableVersionRepository",
+    "OutcomeRepository",
     "PriceObservationRepository",
+    "RecommendationRepository",
+    "RecommendationVersionRepository",
+    "UserContextRepository",
     "SignalSnapshotRepository",
     "StructuredSignalRepository",
 ]

@@ -21,6 +21,15 @@ class Settings(BaseSettings):
         default="postgresql://krishinetra:krishinetra@127.0.0.1:5432/krishinetra",
         validation_alias="DATABASE_URL",
     )
+    redis_url: str = Field(
+        default="redis://127.0.0.1:6379/0",
+        validation_alias="REDIS_URL",
+    )
+    mi_cache_ttl_seconds: int = Field(
+        default=48 * 3600,
+        validation_alias="MI_CACHE_TTL_SECONDS",
+        description="Redis MI snapshot TTL — TDS-006 §4 default 48h",
+    )
 
 
 @lru_cache

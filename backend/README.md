@@ -92,9 +92,35 @@ See [backend/app/persistence/README.md](app/persistence/README.md) for naming co
 - Business logic in handlers (E-09+)
 - LLM SDK packages (ADR-001 — only under `agents/explainability/` in later stories)
 
+## Redis MI cache (E-01-S09)
+
+Redis holds a **cache-only** denormalized MI snapshot projection per TDS-006 §4 and TDS-009 §8. PostgreSQL remains the source of truth.
+
+| Item | Value |
+|------|-------|
+| Key pattern | `mi:{commodity_id}:{as_of_date}` |
+| Default TTL | 48 hours (`MI_CACHE_TTL_SECONDS`, default `172800`) |
+| Env | `REDIS_URL` (see `.env.example`) |
+| Client | `backend.app.cache.mi_projection.RedisMIProjectionClient` |
+| Payload contract | `shared.contracts.mi_snapshot.MISnapshotPayload` |
+
+```python
+from datetime import date
+from backend.app.cache import build_mi_cache_key, get_mi_projection_client
+
+client = get_mi_projection_client()
+key = build_mi_cache_key("cotton", date(2026, 6, 4))
+client.set_mi_snapshot(key, payload_dict)  # JSON-serialized
+cached = client.get_mi_snapshot(key)  # None on miss or Redis down
+```
+
+Materialization from PostgreSQL: `backend.app.services.mi_snapshot_materializer.MISnapshotMaterializer`.
+
+Unit tests: `tests/unit/test_redis_mi.py` (`test_redis_mi_roundtrip`, `test_redis_key_format`).
+
 ## Declared dependencies (not yet used in app code)
 
-SQLAlchemy, Redis, Alembic, and LangGraph are pinned in root `pyproject.toml` for reproducible installs but are **not** wired into `backend/app` at M0. Rationale and epic ownership: [E00_DEPENDENCY_RATIONALE.md](../docs/implementation/E00_DEPENDENCY_RATIONALE.md).
+SQLAlchemy, Redis, Alembic, and LangGraph are pinned in root `pyproject.toml` for reproducible installs. **Redis is wired** for MI cache (E-01-S09); remaining packages follow epic ownership: [E00_DEPENDENCY_RATIONALE.md](../docs/implementation/E00_DEPENDENCY_RATIONALE.md).
 
 ## Agent package naming
 

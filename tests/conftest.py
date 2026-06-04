@@ -41,7 +41,29 @@ def migrated_database(alembic_config: Config) -> str:
         version = conn.execute(
             text("SELECT version_num FROM alembic_version")
         ).scalar_one()
-        assert version == "0007_forecast_and_features"
+        assert version == "0008_decision_stack"
 
     engine.dispose()
     return db_url
+
+
+@pytest.fixture(autouse=True)
+def _ensure_db_at_migration_head(
+    request: pytest.FixtureRequest,
+    alembic_config: Config,
+) -> None:
+    """
+    Re-apply head before each integration test.
+
+    Tests such as test_alembic_downgrade_one_revision temporarily downgrade;
+    without this, later tests see a stale schema while migrated_database is cached.
+    """
+    if not database_configured():
+        return
+    if request.node.get_closest_marker("integration") is None:
+        return
+    if request.node.name == "test_alembic_downgrade_one_revision":
+        return
+    db_url = os.environ["DATABASE_URL"]
+    alembic_config.set_main_option("sqlalchemy.url", db_url)
+    command.upgrade(alembic_config, "head")

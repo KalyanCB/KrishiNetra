@@ -62,6 +62,9 @@ class CommodityRegistryRepository(BaseRepository[CommodityRegistryModel]):
             prior.is_active = False
             if effective_to_for_prior is not None:
                 prior.effective_to = effective_to_for_prior
+            # Flush deactivation first — avoids unique (commodity_id) active index
+            # violation when SQLAlchemy batches both UPDATEs in one executemany.
+            self._session.flush()
 
         target.is_active = True
         target.effective_to = None

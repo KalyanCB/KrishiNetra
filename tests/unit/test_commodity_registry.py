@@ -78,10 +78,11 @@ def test_required_agents_json_schema_rejects_invalid_agent() -> None:
 
 @pytest.mark.integration
 def test_single_active_registry(migrated_database: str) -> None:
+    commodity_id = f"reg_active_{uuid4().hex[:8]}"
     engine = create_engine(migrated_database, pool_pre_ping=True)
     with Session(engine) as session:
         commodity = CommodityModel(
-            commodity_id="reg_active_test",
+            commodity_id=commodity_id,
             name="Registry Active Test",
             status=CommodityStatus.DRAFT.value,
         )
@@ -89,12 +90,12 @@ def test_single_active_registry(migrated_database: str) -> None:
         session.flush()
 
         repo = CommodityRegistryRepository(session)
-        first = _registry_row(commodity_id="reg_active_test", version="1.0.0")
+        first = _registry_row(commodity_id=commodity_id, version="1.0.0")
         first.is_active = True
         repo.insert_version(first)
         session.commit()
 
-        second = _registry_row(commodity_id="reg_active_test", version="1.1.0")
+        second = _registry_row(commodity_id=commodity_id, version="1.1.0")
         second.is_active = True
         session.add(second)
         with pytest.raises(IntegrityError):
@@ -109,10 +110,11 @@ def test_single_active_registry(migrated_database: str) -> None:
 
 @pytest.mark.integration
 def test_version_activation(migrated_database: str) -> None:
+    commodity_id = f"reg_activate_{uuid4().hex[:8]}"
     engine = create_engine(migrated_database, pool_pre_ping=True)
     with Session(engine) as session:
         commodity = CommodityModel(
-            commodity_id="reg_activate_test",
+            commodity_id=commodity_id,
             name="Registry Activate Test",
             status=CommodityStatus.DRAFT.value,
         )
@@ -120,17 +122,18 @@ def test_version_activation(migrated_database: str) -> None:
         session.flush()
 
         repo = CommodityRegistryRepository(session)
-        v1 = _registry_row(commodity_id="reg_activate_test", version="1.0.0")
+        v1 = _registry_row(commodity_id=commodity_id, version="1.0.0")
         repo.insert_version(v1)
         repo.activate_version(v1.registry_id, effective_to_for_prior=date(2026, 6, 3))
+        session.commit()
 
-        v2 = _registry_row(commodity_id="reg_activate_test", version="1.1.0")
+        v2 = _registry_row(commodity_id=commodity_id, version="1.1.0")
         repo.insert_version(v2)
         repo.activate_version(v2.registry_id, effective_to_for_prior=date(2026, 6, 3))
         session.commit()
 
         service = RegistryService(session)
-        active = service.get_active_config("reg_activate_test")
+        active = service.get_active_config(commodity_id)
         assert active.version == "1.1.0"
         assert active.is_active is True
 

@@ -1,5 +1,14 @@
 """SQLAlchemy ORM models (TDS-006)."""
 
+from backend.app.persistence.models.decision import (
+    DECISION_RETENTION_YEARS,
+    DecisionSessionModel,
+    OutcomeModel,
+    OutcomeValidationStatus,
+    RecommendationModel,
+    RecommendationVersionModel,
+    UserContextModel,
+)
 from backend.app.persistence.models.forecast import (
     FeatureSetModel,
     FeatureVectorModel,
@@ -36,11 +45,18 @@ from backend.app.persistence.models.signal import (
 )
 
 __all__ = [
+    "DECISION_RETENTION_YEARS",
+    "DecisionSessionModel",
     "FeatureSetModel",
     "FeatureVectorModel",
     "ForecastModel",
     "ForecastStatus",
     "ForecastVersionModel",
+    "OutcomeModel",
+    "OutcomeValidationStatus",
+    "RecommendationModel",
+    "RecommendationVersionModel",
+    "UserContextModel",
     "ArrivalObservationModel",
     "CommodityModel",
     "CommodityProfileModel",

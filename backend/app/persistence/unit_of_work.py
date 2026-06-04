@@ -7,6 +7,13 @@ from types import TracebackType
 from sqlalchemy.orm import Session
 
 from backend.app.persistence.database import SessionLocal
+from backend.app.persistence.repositories.decision import (
+    DecisionSessionRepository,
+    OutcomeRepository,
+    RecommendationRepository,
+    RecommendationVersionRepository,
+    UserContextRepository,
+)
 from backend.app.persistence.repositories.forecast import (
     FeatureSetRepository,
     FeatureVectorRepository,
@@ -43,6 +50,11 @@ class UnitOfWork:
         self.forecast_versions = ForecastVersionRepository(self.session)
         self.feature_sets = FeatureSetRepository(self.session)
         self.feature_vectors = FeatureVectorRepository(self.session)
+        self.user_contexts = UserContextRepository(self.session)
+        self.decision_sessions = DecisionSessionRepository(self.session)
+        self.recommendations = RecommendationRepository(self.session)
+        self.recommendation_versions = RecommendationVersionRepository(self.session)
+        self.outcomes = OutcomeRepository(self.session)
 
     def __enter__(self) -> UnitOfWork:
         return self

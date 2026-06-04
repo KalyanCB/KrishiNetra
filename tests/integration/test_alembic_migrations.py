@@ -32,11 +32,16 @@ def test_alembic_upgrade_head(migrated_database: str, alembic_config: Config) ->
     assert "forecast_version" in tables
     assert "feature_set" in tables
     assert "feature_vector" in tables
+    assert "user_context" in tables
+    assert "decision_session" in tables
+    assert "recommendation" in tables
+    assert "recommendation_version" in tables
+    assert "outcome" in tables
 
     with engine.connect() as conn:
         assert (
             conn.execute(text("SELECT version_num FROM alembic_version")).scalar()
-            == "0007_forecast_and_features"
+            == "0008_decision_stack"
         )
     engine.dispose()
 
@@ -46,14 +51,20 @@ def test_alembic_upgrade_head(migrated_database: str, alembic_config: Config) ->
     reason="DATABASE_URL required",
 )
 def test_alembic_downgrade_one_revision(alembic_config: Config) -> None:
-    """Reversible migrations: downgrade one step from head."""
+    """Reversible migrations: downgrade one step from head (0008 -> 0007)."""
+    command.upgrade(alembic_config, "head")
     command.downgrade(alembic_config, "-1")
     db_url = os.environ["DATABASE_URL"]
     engine = create_engine(db_url, pool_pre_ping=True)
     inspector = inspect(engine)
     tables = set(inspector.get_table_names())
-    assert "forecast_version" not in tables
-    assert "forecast" not in tables
+    assert "user_context" not in tables
+    assert "decision_session" not in tables
+    assert "recommendation" not in tables
+    assert "recommendation_version" not in tables
+    assert "outcome" not in tables
+    assert "forecast_version" in tables
+    assert "forecast" in tables
     assert "structured_signal" in tables
     assert "signal_snapshot" in tables
     assert "commodity" in tables
