@@ -13,7 +13,7 @@ def test_alembic_revision_chain_linear() -> None:
     cfg = Config(str(root / "alembic.ini"))
     script = ScriptDirectory.from_config(cfg)
     heads = script.get_heads()
-    assert heads == ["0012_signal_pi9_contract"]
+    assert heads == ["0014_pi10_head_merge"]
     revisions = list(script.walk_revisions(base="base", head=heads[0]))
     ids = [rev.revision for rev in reversed(revisions)]
     assert ids == [
@@ -29,6 +29,10 @@ def test_alembic_revision_chain_linear() -> None:
         "0010_partition_backfill",
         "0011_observation_rejected",
         "0012_signal_pi9_contract",
+        "0013_policy_observations",
+        "0013_forecast_feature_snapshot",
+        "0013_futures_observations",
+        "0014_pi10_head_merge",
     ]
 
 

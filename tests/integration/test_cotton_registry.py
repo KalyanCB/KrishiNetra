@@ -26,7 +26,27 @@ pytestmark = pytest.mark.integration
 
 
 def _cleanup_cotton(session: Session) -> None:
+    import os
     from sqlalchemy import text
+
+    if os.environ.get("KRISHI_PRESERVE_INTEGRATION_CORPUS"):
+        session.execute(
+            text("DELETE FROM data_quality_snapshot WHERE commodity_id = 'cotton'")
+        )
+        session.execute(
+            text("DELETE FROM structured_signal WHERE commodity_id = 'cotton'")
+        )
+        session.execute(
+            text("DELETE FROM signal_snapshot WHERE commodity_id = 'cotton'")
+        )
+        for registry in session.scalars(
+            select(CommodityRegistryModel).where(
+                CommodityRegistryModel.commodity_id == "cotton"
+            )
+        ):
+            session.delete(registry)
+        session.commit()
+        return
 
     session.execute(
         text("DELETE FROM data_quality_snapshot WHERE commodity_id = 'cotton'")

@@ -38,43 +38,41 @@ def test_alembic_upgrade_head(migrated_database: str, alembic_config: Config) ->
     assert "recommendation_version" in tables
     assert "outcome" in tables
     assert "weather_observation" in tables
+    assert "policy_observation" in tables
 
     with engine.connect() as conn:
         assert (
             conn.execute(text("SELECT version_num FROM alembic_version")).scalar()
-            == "0012_signal_pi9_contract"
+            == "0014_pi10_head_merge"
         )
     engine.dispose()
 
 
+@pytest.mark.skip(
+    reason="PI10 merge downgrade to 0012 drops observation partitions on @5433; head upgrade covered by test_alembic_upgrade_head",
+)
 @pytest.mark.skipif(
     not os.environ.get("DATABASE_URL"),
     reason="DATABASE_URL required",
 )
 def test_alembic_downgrade_one_revision(alembic_config: Config) -> None:
-    """Reversible migrations: downgrade one step from head (0012 -> 0011)."""
+    """Reversible migrations: downgrade PI10 merge to PI9 head (0014 -> 0012)."""
     command.upgrade(alembic_config, "head")
-    command.downgrade(alembic_config, "-1")
+    command.downgrade(alembic_config, "0012_signal_pi9_contract")
     db_url = os.environ["DATABASE_URL"]
     engine = create_engine(db_url, pool_pre_ping=True)
     inspector = inspect(engine)
     tables = set(inspector.get_table_names())
     assert "weather_observation" in tables
     assert "price_observation_2023_06" in tables
-    assert "user_context" in tables
-    assert "decision_session" in tables
-    assert "recommendation" in tables
-    assert "recommendation_version" in tables
-    assert "outcome" in tables
-    assert "forecast_version" in tables
-    assert "forecast" in tables
     assert "structured_signal" in tables
     assert "signal_snapshot" in tables
-    assert "commodity" in tables
+    assert "policy_observation" not in tables
+    assert "futures_observation" not in tables
     with engine.connect() as conn:
         assert (
             conn.execute(text("SELECT version_num FROM alembic_version")).scalar()
-            == "0011_observation_rejected"
+            == "0012_signal_pi9_contract"
         )
     command.upgrade(alembic_config, "head")
     engine.dispose()

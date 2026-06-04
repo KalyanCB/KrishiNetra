@@ -14,6 +14,13 @@ def database_configured() -> bool:
     return bool(os.environ.get("DATABASE_URL"))
 
 
+@pytest.fixture(scope="session", autouse=True)
+def _preserve_integration_corpus_when_database_configured() -> None:
+    """Keep @5433 Agmarknet corpus across integration tests (PI10 merge gate)."""
+    if database_configured():
+        os.environ["KRISHI_PRESERVE_INTEGRATION_CORPUS"] = "1"
+
+
 @pytest.fixture(scope="session")
 def alembic_config() -> Config:
     """Alembic config pointing at repo-root alembic.ini."""
@@ -41,7 +48,7 @@ def migrated_database(alembic_config: Config) -> str:
         version = conn.execute(
             text("SELECT version_num FROM alembic_version")
         ).scalar_one()
-        assert version == "0012_signal_pi9_contract"
+        assert version == "0014_pi10_head_merge"
 
     engine.dispose()
     return db_url

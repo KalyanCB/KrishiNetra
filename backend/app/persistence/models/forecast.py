@@ -45,11 +45,18 @@ class ForecastModel(Base):
 
 
 class FeatureSetModel(Base):
-    """Feature store metadata row — TDS-006 §10."""
+    """Feature store metadata row — TDS-006 §10; PI10 ForecastFeatureSnapshot."""
 
     __tablename__ = "feature_set"
     __table_args__ = (
         Index("ix_feature_set_commodity_as_of_date", "commodity_id", "as_of_date"),
+        Index(
+            "ix_feature_set_commodity_date_registry",
+            "commodity_id",
+            "as_of_date",
+            "registry_id",
+        ),
+        Index("ix_feature_set_trace_id", "trace_id"),
     )
 
     feature_set_id: Mapped[UUID] = mapped_column(
@@ -69,11 +76,26 @@ class FeatureSetModel(Base):
         nullable=False,
     )
     feature_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    trace_id: Mapped[UUID | None] = mapped_column(PGUUID(as_uuid=True), nullable=True)
+    feature_values: Mapped[dict] = mapped_column(
+        JSONB,
+        nullable=False,
+        server_default="{}",
+    )
+    feature_lineage: Mapped[dict] = mapped_column(
+        JSONB,
+        nullable=False,
+        server_default="{}",
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
         nullable=False,
     )
+
+
+# PI10 Track C alias — same table as feature_set (extended @ 0013).
+ForecastFeatureSnapshotModel = FeatureSetModel
 
 
 class FeatureVectorModel(Base):

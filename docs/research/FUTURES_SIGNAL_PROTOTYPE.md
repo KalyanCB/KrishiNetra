@@ -14,7 +14,7 @@
 
 ## 1. Executive Summary
 
-KrishiNetra cotton registry requires **`required_agents: ["Market", "Futures"]`** with Futures weight **0.25** ([`cotton.json`](../../backend/app/persistence/seeds/fixtures/cotton.json)). DS-001 remains **OPEN** — no NDU/vendor contract on file — which today blocks **production** futures ingest (REQ-071) and **strict MI publish** ([DS001_FOUNDER_DECISION_PACKAGE.md](./DS001_FOUNDER_DECISION_PACKAGE.md) §E-04 consequences; [SIGNAL_READINESS_RECHECK.md](./SIGNAL_READINESS_RECHECK.md) §5.2).
+KrishiNetra cotton registry requires **`required_agents: ["Market", "Futures"]`** with Futures weight **0.25** ([`cotton.json`](../../backend/app/persistence/seeds/fixtures/cotton.json)). DS-001 is a **Production Readiness Blocker** only (**FOUNDER APPROVED** downgrade 2026-06-04; not a Development Blocker) — no NDU/vendor contract on file still blocks **production** futures ingest (REQ-071) and **strict MI publish** ([DS001_FOUNDER_DECISION_PACKAGE.md](./DS001_FOUNDER_DECISION_PACKAGE.md); [SIGNAL_READINESS_RECHECK.md](./SIGNAL_READINESS_RECHECK.md) §5.2).
 
 This memo evaluates whether **public/EOD prototype paths** can unblock **E-04 enhanced degraded mode** — real `curve_slope`, `basis_futures_spot`, and OI transforms on observations — **without** treating the result as licensed production data.
 
@@ -26,7 +26,7 @@ This memo evaluates whether **public/EOD prototype paths** can unblock **E-04 en
 
 | Decision | Recommendation |
 |----------|----------------|
-| **DS-001 downgrade (Phase-1 blocker → production-only blocker)?** | **YES — with guardrails** (§7) |
+| **DS-001 downgrade (Phase-1 blocker → production-only blocker)?** | **FOUNDER APPROVED** (2026-06-04) — [DS001_FOUNDER_DECISION_PACKAGE.md](./DS001_FOUNDER_DECISION_PACKAGE.md); guardrails §7.3 |
 | **Best prototype source** | **NCDEX public EOD bhavcopy** (UDiFF CSV/XLS) |
 
 **Honest ceiling:** None of these paths replace licensed NDU/vendor feed for REQ-071, DVA Track B (G3/G4/G6), hold-to-curve (FD-003/REQ-082), or strict MI production promotion. They exist to **exercise FuturesSignalGenerator math**, AC harness, and SignalSnapshot assembly on **real KAPAS curve observations** before founder budget executes.
@@ -263,7 +263,7 @@ This is the **same integration surface** as DS-001 Option B fallback NDU — hig
 
 Can DS-001 be **downgraded** from **Phase-1 blocker** (blocks all E-04/MI work) to **Production-readiness blocker only** (allows prototype futures ingest + degraded Futures signals using public/EOD sources)?
 
-### 7.2 Recommendation: **YES — with guardrails**
+### 7.2 Recommendation: **FOUNDER APPROVED** (2026-06-04) — guardrails mandatory
 
 **Rationale (disk state @ PI9):**
 
@@ -339,7 +339,7 @@ NCDEX public bhav (UDiFF CSV)
 | Field | Value |
 |-------|-------|
 | **Report path** | `docs/research/FUTURES_SIGNAL_PROTOTYPE.md` |
-| **DS-001 downgrade** | **YES** — Phase-1 engineering blocker → **production-readiness blocker only**, subject to §7.3 guardrails |
+| **DS-001 downgrade** | **FOUNDER APPROVED** — DS-001 is a **Production Readiness Blocker** only; **NOT** a **Development Blocker**; §7.3 guardrails mandatory ([DS001_FOUNDER_DECISION_PACKAGE.md](./DS001_FOUNDER_DECISION_PACKAGE.md)) |
 | **Best prototype source** | **NCDEX EOD Bhavcopy (public UDiFF)** |
 | **Yahoo Finance** | **Not recommended** |
 | **MCX Bhavcopy** | **Secondary contingency only** |

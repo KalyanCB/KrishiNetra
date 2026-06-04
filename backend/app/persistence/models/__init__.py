@@ -12,15 +12,28 @@ from backend.app.persistence.models.decision import (
 from backend.app.persistence.models.forecast import (
     FeatureSetModel,
     FeatureVectorModel,
+    ForecastFeatureSnapshotModel,
     ForecastModel,
     ForecastStatus,
     ForecastVersionModel,
+)
+from backend.app.persistence.models.futures import (
+    FUTURES_OBSERVATION_RETENTION_YEARS,
+    FuturesEnvironment,
+    FuturesObservationModel,
+    FuturesObservationSource,
 )
 from backend.app.persistence.models.observation import (
     OBSERVATION_RETENTION_YEARS,
     ArrivalObservationModel,
     ObservationValidationStatus,
     PriceObservationModel,
+)
+from backend.app.persistence.models.policy import (
+    POLICY_OBSERVATION_RETENTION_YEARS,
+    PolicyObservationModel,
+    PolicyObservationSource,
+    PolicyType,
 )
 from backend.app.persistence.models.quality import (
     DATA_QUALITY_RETENTION_YEARS,
@@ -52,8 +65,13 @@ from backend.app.persistence.models.weather import (
 __all__ = [
     "DECISION_RETENTION_YEARS",
     "DecisionSessionModel",
+    "FUTURES_OBSERVATION_RETENTION_YEARS",
     "FeatureSetModel",
+    "FuturesEnvironment",
+    "FuturesObservationModel",
+    "FuturesObservationSource",
     "FeatureVectorModel",
+    "ForecastFeatureSnapshotModel",
     "ForecastModel",
     "ForecastStatus",
     "ForecastVersionModel",
@@ -73,6 +91,10 @@ __all__ = [
     "MarketModel",
     "OBSERVATION_RETENTION_YEARS",
     "ObservationValidationStatus",
+    "POLICY_OBSERVATION_RETENTION_YEARS",
+    "PolicyObservationModel",
+    "PolicyObservationSource",
+    "PolicyType",
     "PriceObservationModel",
     "RegionModel",
     "RegionType",

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import json
 from datetime import UTC, date, datetime
 from decimal import Decimal
@@ -274,6 +275,8 @@ def test_pipeline_ingest_from_ogd_mock_client() -> None:
 @pytest.mark.integration
 def test_pipeline_fixture_integration(migrated_database: str) -> None:
     """Optional: full fixture ingest when DATABASE_URL + migrations available."""
+    if os.environ.get("KRISHI_PRESERVE_INTEGRATION_CORPUS"):
+        pytest.skip("Preserves @5433 observation corpus (PI10 merge gate)")
     from sqlalchemy import create_engine, func, select
     from sqlalchemy.orm import Session
     from tests.integration.test_cotton_registry import _cleanup_cotton

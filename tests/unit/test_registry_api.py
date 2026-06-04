@@ -173,6 +173,7 @@ def test_activate_registry_swaps_active(
 
 
 def _cleanup_cotton(session: Session) -> None:
+    import os
     from sqlalchemy import select, text
 
     from backend.app.persistence.models.reference import (
@@ -180,6 +181,19 @@ def _cleanup_cotton(session: Session) -> None:
         MarketModel,
         RegionModel,
     )
+
+    if os.environ.get("KRISHI_PRESERVE_INTEGRATION_CORPUS"):
+        session.execute(
+            text("DELETE FROM data_quality_snapshot WHERE commodity_id = 'cotton'")
+        )
+        for registry in session.scalars(
+            select(CommodityRegistryModel).where(
+                CommodityRegistryModel.commodity_id == "cotton"
+            )
+        ):
+            session.delete(registry)
+        session.commit()
+        return
 
     session.execute(
         text("DELETE FROM data_quality_snapshot WHERE commodity_id = 'cotton'")

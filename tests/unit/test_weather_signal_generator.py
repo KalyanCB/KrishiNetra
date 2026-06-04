@@ -7,7 +7,7 @@ from decimal import Decimal
 from uuid import UUID, uuid4
 
 import pytest
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
 from backend.app.persistence.models.observation import ObservationValidationStatus
@@ -241,18 +241,26 @@ def _seed_registry(session: Session, *, registry_id: UUID) -> None:
             )
         )
         session.flush()
-    session.add(
-        CommodityRegistryModel(
-            registry_id=registry_id,
-            commodity_id="cotton",
-            version="1.0.0-test",
-            effective_from=date(2026, 1, 1),
-            is_active=False,
-            required_agents=["Market", "Futures"],
-            decision_rules={"formula_version": "v1"},
+    version = f"1.0.0-test-{registry_id.hex[:8]}"
+    existing = session.scalars(
+        select(CommodityRegistryModel).where(
+            CommodityRegistryModel.commodity_id == "cotton",
+            CommodityRegistryModel.version == version,
         )
-    )
-    session.flush()
+    ).first()
+    if existing is None:
+        session.add(
+            CommodityRegistryModel(
+                registry_id=registry_id,
+                commodity_id="cotton",
+                version=version,
+                effective_from=date(2026, 1, 1),
+                is_active=False,
+                required_agents=["Market", "Futures"],
+                decision_rules={"formula_version": "v1"},
+            )
+        )
+        session.flush()
 
 
 @pytest.mark.integration

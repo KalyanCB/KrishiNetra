@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from datetime import date
 from decimal import Decimal
 from pathlib import Path
@@ -52,6 +53,8 @@ def test_fixture_maps_cotton_telangana_drafts() -> None:
 
 
 def test_observation_population_proof(migrated_database: str) -> None:
+    if os.environ.get("KRISHI_PRESERVE_INTEGRATION_CORPUS"):
+        pytest.skip("Preserves @5433 observation corpus (PI10 merge gate)")
     engine = create_engine(migrated_database, pool_pre_ping=True)
     try:
         with Session(engine) as session:

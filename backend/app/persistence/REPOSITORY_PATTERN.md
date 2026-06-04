@@ -6,7 +6,7 @@ Aligned to [TDS-006 §6–§8](../../../docs/tds/TDS-006-Data-Model.md) and [ADR
 
 | Pattern | Tables | Repository rule |
 |---------|--------|-----------------|
-| **Append-only** | `price_observation`, `arrival_observation` (S04+) | `insert` only; corrections via new row + `supersedes_id` |
+| **Append-only** | `price_observation`, `arrival_observation` (S04+), `weather_observation`, `policy_observation` | `insert` only; corrections via new row + `supersedes_id` |
 | **Immutable versioned** | `forecast_version`, `recommendation_version` (S06, S07) | `insert` only; `update()` raises `ImmutableVersionUpdateError` |
 | **Versioned config** | `commodity_registry` (S10) | New version row; exactly one `is_active=true` per commodity; `RegistryService.get_active_config()` |
 | **Quality snapshot** | `data_quality_snapshot` (S08) | Insert with bounds validation; UNIQUE per (commodity, date, registry) |

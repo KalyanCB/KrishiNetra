@@ -22,7 +22,6 @@ from tests.fixtures.signal_quality import (
 )
 
 from backend.app.persistence.models.reference import CommodityModel, CommodityStatus
-from backend.app.persistence.models.registry import CommodityRegistryModel
 from backend.app.persistence.repositories.registry import CommodityRegistryRepository
 from backend.app.persistence.repositories.signal import (
     SignalSnapshotRepository,

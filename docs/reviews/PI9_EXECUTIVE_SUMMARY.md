@@ -30,7 +30,11 @@
 |--------|---------|
 | **START E-05** | **Selected (enhanced degraded)** — Market + Weather runtime proven; replay PASS; quality service PASS; TDS-009 allows optional-agent gaps with penalties |
 | **CONTINUE E-04** | **Selected** — Futures prototype path (NCDEX public bhav); Policy stub research; LangGraph orchestration deferred |
-| **BLOCKED** | **Selected for strict MI / production** — Futures required agent absent; DS-001 unsigned; SR-01 live OGD |
+| **BLOCKED** | **Selected for strict MI / production** — Futures required agent absent; DS-001 production gate (OPTION B unsigned); SR-01 live OGD |
+
+### DS-001 reclassification (founder-approved 2026-06-04)
+
+DS-001 is reclassified as a **Production Readiness Blocker** only; it is **NOT** a **Development Blocker**. E-04 Futures prototype engineering may proceed under [FUTURES_SIGNAL_PROTOTYPE.md](../research/FUTURES_SIGNAL_PROTOTYPE.md) (NCDEX EOD bhavcopy primary; guardrails §7.3). Production MI, DVA Track B, strict publish, and licensed hold-to-curve remain blocked until founder signs **OPTION B** and NDU or vendor sublicense is on file ([DS001_FOUNDER_DECISION_PACKAGE.md](../research/DS001_FOUNDER_DECISION_PACKAGE.md)).
 
 ### Not selected for immediate production
 
@@ -70,7 +74,7 @@
 | Signal generation deterministic | **Pass** — replay harness 5 cycles |
 | Replay validation | **Pass** |
 | `@5433` corpus | **Restored** — 61,544 validated Agmarknet rows |
-| DS-001 downgrade (FUTURES_SIGNAL_PROTOTYPE) | **YES** — production blocker only |
+| DS-001 downgrade (FUTURES_SIGNAL_PROTOTYPE) | **FOUNDER APPROVED** — Production Readiness Blocker only; not a Development Blocker |
 | E-05 production MI | **NOT READY** |
 | E-06 forecast engine | **NOT STARTED** (per stop rule) |
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from datetime import date
 from pathlib import Path
 from unittest.mock import MagicMock
@@ -225,6 +226,8 @@ def test_backfill_window_start_matches_nasa_pattern() -> None:
 @pytest.mark.integration
 def test_backfill_fixture_integration(migrated_database: str) -> None:
     """Optional: short fixture backfill when DATABASE_URL + migrations available."""
+    if os.environ.get("KRISHI_PRESERVE_INTEGRATION_CORPUS"):
+        pytest.skip("Preserves @5433 observation corpus (PI10 merge gate)")
     from sqlalchemy import create_engine, func, select
     from sqlalchemy.orm import Session
     from tests.integration.test_cotton_registry import _cleanup_cotton

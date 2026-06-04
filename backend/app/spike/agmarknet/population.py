@@ -263,6 +263,11 @@ def _arrival_row_dict(row: ArrivalObservationModel) -> dict[str, object]:
 
 def delete_cotton_agmarknet_observations(session: Session) -> ObservationCounts:
     """Remove cotton Agmarknet rows (test/report cleanup only)."""
+    import os
+
+    if os.environ.get("KRISHI_PRESERVE_INTEGRATION_CORPUS"):
+        return ObservationCounts(0, 0)
+
     deleted_prices = 0
     deleted_arrivals = 0
     for price_row in session.scalars(

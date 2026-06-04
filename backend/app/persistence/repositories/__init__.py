@@ -14,13 +14,16 @@ from backend.app.persistence.repositories.decision import (
 from backend.app.persistence.repositories.forecast import (
     FeatureSetRepository,
     FeatureVectorRepository,
+    ForecastFeatureSnapshotRepository,
     ForecastRepository,
     ForecastVersionRepository,
 )
+from backend.app.persistence.repositories.futures import FuturesObservationRepository
 from backend.app.persistence.repositories.observation import (
     ArrivalObservationRepository,
     PriceObservationRepository,
 )
+from backend.app.persistence.repositories.policy import PolicyObservationRepository
 from backend.app.persistence.repositories.quality import DataQualitySnapshotRepository
 from backend.app.persistence.repositories.reference import CommodityRepository
 from backend.app.persistence.repositories.registry import CommodityRegistryRepository
@@ -33,7 +36,9 @@ from backend.app.persistence.repositories.weather import WeatherObservationRepos
 __all__ = [
     "DecisionSessionRepository",
     "FeatureSetRepository",
+    "FuturesObservationRepository",
     "FeatureVectorRepository",
+    "ForecastFeatureSnapshotRepository",
     "ForecastRepository",
     "ForecastVersionRepository",
     "ArrivalObservationRepository",
@@ -43,6 +48,7 @@ __all__ = [
     "DataQualitySnapshotRepository",
     "ImmutableVersionRepository",
     "OutcomeRepository",
+    "PolicyObservationRepository",
     "PriceObservationRepository",
     "RecommendationRepository",
     "RecommendationVersionRepository",

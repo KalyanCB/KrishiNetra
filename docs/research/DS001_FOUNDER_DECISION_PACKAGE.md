@@ -2,8 +2,29 @@
 
 **Date:** 2026-06-04 · **PI:** PI5 Track G (KDO — synthesis only; no new vendor research)  
 **Decision ID:** DS-001 · **Requirement:** REQ-071, DD-005, DA-002, FD-003, FD-030  
-**Status:** **FOUNDER DECISION REQUIRED** — no NDU/vendor contract on file  
+**Status:** **ACTIVE** (downgrade approved 2026-06-04) — OPTION B + NDU/vendor contract still **REQUIRED** for production paths  
 **Inputs (synthesis only):** [DS001_FUTURES_VENDOR_DECISION.md](./DS001_FUTURES_VENDOR_DECISION.md), [FUTURES_DEPENDENCY_ANALYSIS.md](./FUTURES_DEPENDENCY_ANALYSIS.md), [SIGNAL_ENGINE_V1.md](./SIGNAL_ENGINE_V1.md), [AGMARKNET_PRODUCTION_ONBOARDING.md](./AGMARKNET_PRODUCTION_ONBOARDING.md), E-02 cotton registry @ v1.0.0 active
+
+---
+
+## Founder Decision — DS-001 Downgrade Approved
+
+| Field | Record |
+|-------|--------|
+| **Date** | 2026-06-04 |
+| **Status** | **ACTIVE** |
+| **Scope** | Blocker **classification** reclassification only — does **not** substitute for OPTION B sign-off or licensed ingest |
+
+### Blocker classification (founder-approved)
+
+| Classification | Applies? |
+|----------------|----------|
+| **Production Readiness Blocker** | **YES** — DS-001 blocks production MI, DVA Track B, strict `SignalSnapshot` publish, REQ-071 production futures ingest, and licensed hold-to-curve (FD-003 / REQ-082) until **OPTION B** is signed and NDU or vendor sublicense is on file |
+| **Development Blocker** | **NO** — engineering may proceed with the Futures prototype per [FUTURES_SIGNAL_PROTOTYPE.md](./FUTURES_SIGNAL_PROTOTYPE.md) (NCDEX EOD bhavcopy primary; mandatory guardrails **§7.3**) |
+
+**Guardrails (mandatory):** [FUTURES_SIGNAL_PROTOTYPE.md](./FUTURES_SIGNAL_PROTOTYPE.md) §7.3 (G-01 through G-10) — including `futures_feed_ok=false`, confidence cap ≤ 0.35, no strict MI publish, no DVA Track B, and production cutover only after OPTION B closes.
+
+**Unchanged by this decision:** Production MI, DVA Track B, strict publish, and licensed hold-to-curve still require **OPTION B** + founder contract per sign-off table below.
 
 ---
 
@@ -37,7 +58,7 @@ Choose whether Phase 1 proceeds **without a licensed commercial futures feed** o
 
 | Item | Status |
 |------|--------|
-| **Decision status** | **OPEN** — memo updated PI5 Track G; founder signature still required |
+| **Decision status** | **PARTIAL** — downgrade **ACTIVE** (2026-06-04); OPTION B sign-off + contract on file still **OPEN** for production |
 | **KDO recommendation** | **GO on OPTION B** · **NO-GO on OPTION A** (production path) |
 | **E-03 consequences** | **Without B:** Sprint 0 Agmarknet + weather may proceed; **futures production ingest blocked** (REQ-071). **With B:** authorize vendor/NDU path; unblocks E-03 futures prod after contract on file + UDiFF ingest SLO. |
 | **E-04 consequences** | **Without B:** Market/Weather/Policy agents runnable on observations; Futures emits **degraded** signal only; **strict MI / production promotion blocked** per TDS-009. **With B:** full five-agent runtime per SIGNAL_ENGINE_V1; unblocks E-04 → E-05 MI aggregation on licensed path. |

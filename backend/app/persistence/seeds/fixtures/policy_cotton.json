@@ -1,0 +1,31 @@
+{
+  "commodity_id": "cotton",
+  "observations": [
+    {
+      "policy_type": "msp_announcement",
+      "source": "pib_manual",
+      "published_date": "2026-05-15",
+      "effective_date": "2026-06-01",
+      "impact_direction": "bullish",
+      "confidence": "0.85",
+      "summary": "MSP for medium staple cotton raised to INR 7120/quintal (stub)",
+      "provenance": {
+        "ingest_mode": "manual_seed",
+        "reference": "PIB press release stub — PI10 Track B"
+      }
+    },
+    {
+      "policy_type": "export_ban",
+      "source": "pib_manual",
+      "published_date": "2026-04-01",
+      "effective_date": "2026-04-10",
+      "impact_direction": "bearish",
+      "confidence": "0.90",
+      "summary": "Temporary cotton export restriction circular (stub)",
+      "provenance": {
+        "ingest_mode": "manual_seed",
+        "reference": "DGFT notification stub — PI10 Track B"
+      }
+    }
+  ]
+}
