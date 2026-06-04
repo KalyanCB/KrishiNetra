@@ -7,7 +7,13 @@ from types import TracebackType
 from sqlalchemy.orm import Session
 
 from backend.app.persistence.database import SessionLocal
+from backend.app.persistence.repositories.observation import (
+    ArrivalObservationRepository,
+    PriceObservationRepository,
+)
+from backend.app.persistence.repositories.quality import DataQualitySnapshotRepository
 from backend.app.persistence.repositories.reference import CommodityRepository
+from backend.app.persistence.repositories.registry import CommodityRegistryRepository
 
 
 class UnitOfWork:
@@ -17,6 +23,10 @@ class UnitOfWork:
         self._owns_session = session is None
         self.session = session or SessionLocal()
         self.commodities = CommodityRepository(self.session)
+        self.registries = CommodityRegistryRepository(self.session)
+        self.quality_snapshots = DataQualitySnapshotRepository(self.session)
+        self.price_observations = PriceObservationRepository(self.session)
+        self.arrival_observations = ArrivalObservationRepository(self.session)
 
     def __enter__(self) -> UnitOfWork:
         return self

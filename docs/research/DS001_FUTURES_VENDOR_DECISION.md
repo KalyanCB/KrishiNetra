@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-03  
 **Workstream:** E — KDO research (no code)  
-**Status:** Complete — awaiting founder sign-off  
+**Status:** **FOUNDER DECISION REQUIRED** — research complete; no signed NDU/vendor contract on file  
 **Inputs (read-only):** [COTTON_DATA_SOURCE_VALIDATION.md](./COTTON_DATA_SOURCE_VALIDATION.md), `docs/founder/` (REQ-071, DA-002, DD-005), [TDS-007](../tds/TDS-007-Forecast-Architecture.md) §3–5 (Futures features), [IMPLEMENTATION_READINESS_REVIEW.md](../reviews/IMPLEMENTATION_READINESS_REVIEW.md) (DS-001)
 
 ---
@@ -183,8 +183,13 @@ Track C concluded: treat NCDEX as one licensed venue; pick **one commercial aggr
 | Field | Value |
 |-------|-------|
 | **Decision** | Primary: NCDEX EOD via authorized domestic vendor; Fallback: direct NCDEX EOD NDU |
-| **Blocks removed when** | Signed NDU or vendor sublicense on file |
-| **Still blocks** | E-03 production ingest, E-06 credible hold-to-curve bake-off until contract executed |
+| **Status** | **FOUNDER DECISION REQUIRED** — recommendation documented; no executed contract or founder approval record in repo |
+| **Assumptions** | NCDEX KAPAS remains primary venue; EOD batch sufficient (DA-008); Year 1 budget ₹3–8 lakhs all-in |
+| **Integration impact** | `futures_feed_ok` on `data_quality_snapshot` (E-01-S08); `price_sources` on registry (E-01-S10); E-03 ingest blocked until NDU |
+| **Cost (planning)** | Vendor path ₹3–8L Y1; direct NDU fallback ~₹15k/yr exchange tariff + ops |
+| **Risks** | Thin KAPAS OI; sublicense terms; UDiFF migration gaps; dev-only public bhav not REQ-071 compliant |
+| **Blocks removed when** | Signed NDU or vendor sublicense on file **and** founder approval recorded |
+| **Still blocks** | E-03 production ingest, E-06 hold-to-curve bake-off until contract executed |
 
 ---
 
@@ -215,8 +220,8 @@ Track C concluded: treat NCDEX as one licensed venue; pick **one commercial aggr
 | Field | Value |
 |-------|-------|
 | Author | KDO Workstream E |
-| Status | Complete — pending founder approval |
-| Next review | After vendor RFP responses or NDU execution |
+| Status | **FOUNDER DECISION REQUIRED** — not APPROVED until contract + founder sign-off recorded in repo |
+| Next review | After vendor RFP responses, NDU execution, or explicit founder approval commit |
 
 ---
 
@@ -231,6 +236,7 @@ KDO PI1 Track C re-reviewed this document against [REPO_AUDIT_CURRENT_STATE.md](
 | Commercial aggregator path (Accelpix, Accord, GDF) | Confirmed |
 | Delayed / public bhav dev-only fallback | Confirmed |
 | Bloomberg/Refinitiv deferred Phase 1 | Confirmed |
-| Founder sign-off still required | **Yes** — blocks REQ-071 production ingest |
+| Founder sign-off still required | **Yes** — status **FOUNDER DECISION REQUIRED**; blocks REQ-071 production ingest |
+| E-01 Phase 3 audit (2026-06-04) | Recommendation unchanged; no `APPROVED` record in repo |
 
 **Alternatives still valid for RFP:** NCDEX direct EOD NDU (₹15k/yr class), 20-min delayed tier, MCX parallel (deferred), TrueData-style MCX-authorized APIs if cotton liquidity shifts to MCX post-2025 contract revisions.

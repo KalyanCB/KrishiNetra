@@ -13,10 +13,16 @@ def test_alembic_revision_chain_linear() -> None:
     cfg = Config(str(root / "alembic.ini"))
     script = ScriptDirectory.from_config(cfg)
     heads = script.get_heads()
-    assert heads == ["0002_reference_entities"]
+    assert heads == ["0005_observations_partitioned"]
     revisions = list(script.walk_revisions(base="base", head=heads[0]))
     ids = [rev.revision for rev in reversed(revisions)]
-    assert ids == ["0001_alembic_bootstrap", "0002_reference_entities"]
+    assert ids == [
+        "0001_alembic_bootstrap",
+        "0002_reference_entities",
+        "0003_commodity_registry",
+        "0004_data_quality_snapshot",
+        "0005_observations_partitioned",
+    ]
 
 
 def test_bootstrap_has_no_business_tables_in_revision_doc() -> None:

@@ -1,116 +1,109 @@
-# E-01 Program Status — Data Foundation (KDO Phase 1)
+# E-01 Program Status — Data Foundation (KDO Phase 3)
 
 **Epic:** E-01 | **Branch (target):** `feature/e01-data-foundation`  
-**Last updated:** 2026-06-03  
-**Stop rule:** Phase 1 complete at S03 + workstreams D–F docs; **E-01-S04+ not started**
+**Last updated:** 2026-06-04  
+**Stop rule:** Phase 3 complete at S04 + tracks B–F docs; **S05–S07, S09, S11 not started**
 
-**KDO workstream map:** A=S01, B=S02, C=S03, D=S04–S07 readiness, E=DS-001, F=governance audit.
-
----
-
-## Workstream A — E-01-S01 Alembic framework
-
-| Field | Value |
-|-------|-------|
-| **Progress** | 100% |
-| **Health** | Green |
-| **Blockers** | None |
-| **Last Update** | 2026-06-03 |
-| **Deliverables** | `alembic.ini`, `migrations/` rev `0001_alembic_bootstrap`, [E01_S01_REPORT.md](./E01_S01_REPORT.md) |
+**KDO workstream map:** A=S04 impl, B=historical bootstrap, C=E-02 seed prep, D=DS-001, E=scale review, F=governance, G=this dashboard.
 
 ---
 
-## Workstream B — E-01-S02 Repository base
+## Epic Completion
 
-| Field | Value |
-|-------|-------|
-| **Progress** | 100% |
-| **Health** | Green |
-| **Blockers** | None |
-| **Last Update** | 2026-06-03 |
-| **Deliverables** | `shared/persistence/`, repositories, UoW, `get_db`, [E01_S02_REPORT.md](./E01_S02_REPORT.md) |
-
----
-
-## Workstream C — E-01-S03 Reference entities
-
-| Field | Value |
-|-------|-------|
-| **Progress** | 100% |
-| **Health** | Green |
-| **Blockers** | None |
-| **Last Update** | 2026-06-03 |
-| **Deliverables** | Rev `0002_reference_entities`, ORM models, seed framework stub, [E01_S03_REPORT.md](./E01_S03_REPORT.md) |
+| Metric | Value |
+|--------|-------|
+| **Stories done** | 6 / 11 (S01, S02, S03, S04, S08, S10) |
+| **Completion %** | **~55%** (6 of 11 stories) |
+| **Migration head** | `0005_observations_partitioned` |
+| **E-02 unblock** | **Ready** — S03 + S10 + S04 observation schema |
 
 ---
 
-## Workstream D — S04–S07 readiness (documentation)
+## Phase 3 Story
 
-| Field | Value |
-|-------|-------|
-| **Progress** | 100% |
-| **Health** | Green |
-| **Blockers** | None — implementation not authorized until Phase 1 sign-off |
-| **Last Update** | 2026-06-03 |
-| **Deliverables** | [E01_NEXT_PHASE_READINESS.md](./E01_NEXT_PHASE_READINESS.md) |
+| Story | Title | Status | Report |
+|-------|-------|--------|--------|
+| E-01-S04 | Partitioned observations | **Done** | [E01_S04_COMPLETION_REPORT.md](../reviews/E01_S04_COMPLETION_REPORT.md) |
 
 ---
 
-## Workstream E — DS-001 futures vendor (research)
+## Workstreams (Phase 3 docs)
 
-| Field | Value |
-|-------|-------|
-| **Progress** | 100% |
-| **Health** | Green (founder sign-off pending) |
-| **Blockers** | Commercial NDU / vendor contract execution (program, not doc) |
-| **Last Update** | 2026-06-03 |
-| **Deliverables** | [DS001_FUTURES_VENDOR_DECISION.md](../research/DS001_FUTURES_VENDOR_DECISION.md) |
-
----
-
-## Workstream F — Governance audit
-
-| Field | Value |
-|-------|-------|
-| **Progress** | 100% |
-| **Health** | Green |
-| **Blockers** | None |
-| **Last Update** | 2026-06-03 |
-| **Deliverables** | [E01_GOVERNANCE_AUDIT.md](../reviews/E01_GOVERNANCE_AUDIT.md) |
+| Track | Deliverable | Status |
+|-------|-------------|--------|
+| B | [HISTORICAL_DATA_BOOTSTRAP_PLAN.md](../research/HISTORICAL_DATA_BOOTSTRAP_PLAN.md) | Done |
+| C | [E02_SEED_PREPARATION_PLAN.md](./E02_SEED_PREPARATION_PLAN.md) | Done |
+| D | [DS001_FUTURES_VENDOR_DECISION.md](../research/DS001_FUTURES_VENDOR_DECISION.md) updated | FOUNDER DECISION REQUIRED |
+| E | [DATA_SCALE_FORECAST.md](../reviews/DATA_SCALE_FORECAST.md) | Done |
+| F | [E01_PHASE3_GOVERNANCE_CHECK.md](../reviews/E01_PHASE3_GOVERNANCE_CHECK.md) | GREEN (program) |
 
 ---
 
-## Implementation not started (post–Phase 1)
+## Not started
 
-| Stories | Scope | Status |
-|---------|-------|--------|
-| **E-01-S04 – S07** | Observations, signals, forecast, decision DDL | Not started — readiness in Workstream D |
-| **E-01-S08 – S10** | Quality snapshot, Redis, `commodity_registry` | Not started — prerequisite for S04 critical path |
-| **E-01-S11** | Persistence integration gate (≥80% coverage) | Not started |
-
-**Current migration head:** `0002_reference_entities`  
-**E-02 unblock:** S03 done; **S10** (`commodity_registry`) still required before cotton seed.
+| Stories | Scope |
+|---------|-------|
+| **E-01-S05 – S07** | Signals, forecast, decision DDL |
+| **E-01-S09** | Redis MI client |
+| **E-01-S11** | Integration gate (≥80% coverage) |
 
 ---
 
-## Program health summary
+## Dependency Graph
 
-| Dimension | Status |
-|-----------|--------|
-| Phase 1 workstreams A–F | **Complete** (docs + S01–S03 code) |
-| Overall health | **Green** (unit gates) — integration tests need `DATABASE_URL` for 6 skipped AC |
-| S04+ implementation | **Blocked** per KDO stop rule |
+```mermaid
+flowchart TB
+  S03[S03 Reference] --> S04[S04 Observations]
+  S04 --> S05[S05 Signals]
+  S08[S08 Quality] --> S05
+  S10[S10 Registry] --> S05
+  S05 --> S06[S06 Forecast]
+  S06 --> S07[S07 Decision]
+  S06 --> S09[S09 Redis]
+  S04 --> S11[S11 Integration]
+  S05 --> S11
+  S06 --> S11
+  S07 --> S11
+
+  style S04 fill:#9f9,stroke:#333
+  style S10 fill:#9f9,stroke:#333
+  style S08 fill:#9f9,stroke:#333
+  style S05 fill:#faa,stroke:#333
+```
 
 ---
 
-## Validation (2026-06-03, post–KDO remediation)
+## Critical Path
+
+**E-00 → S01 → S02 → S03 → S10 → S08 → S04 → S05 → S06 → S07 → S11**
+
+S04 complete. **Next code story: S05** (`0006_signals_partitioned`).
+
+---
+
+## Risks and Blockers
+
+| ID | Item | Severity | Status |
+|----|------|----------|--------|
+| R-01 | DS-001 founder decision | Medium | **Open** |
+| R-02 | Integration tests need `DATABASE_URL` | Low | **Open** |
+| R-03 | Partition ops monthly rollout | Medium | **Mitigated** (runbook) |
+| R-04 | S05 depends on E-00-S08 AgentType | Low | **Green** |
+
+---
+
+## Validation (2026-06-04, Phase 3)
 
 | Check | Status |
 |-------|--------|
-| `uv run python scripts/check_imports.py` | Pass |
-| `uv run ruff check .` | Pass |
-| `uv run mypy` | Pass (0 errors / 68 files) |
-| `uv run pytest tests/ -v` | Pass — **28 passed**, **0 failed**, **6 skipped** |
-| `./scripts/ci-local.sh` | Pass (without `DATABASE_URL`) |
+| `uv run ruff check .` | See [E01_PHASE3_EXECUTIVE_SUMMARY.md](../reviews/E01_PHASE3_EXECUTIVE_SUMMARY.md) |
+| `uv run mypy` | See executive summary |
+| `uv run pytest tests/ -v` | See executive summary |
+| `alembic upgrade head` | See executive summary |
+| Migration chain | `0001 → 0002 → 0003 → 0004 → 0005` linear |
 
-Full rationale: [E01_GOVERNANCE_AUDIT.md](../reviews/E01_GOVERNANCE_AUDIT.md). Phase 1 completion narrative: [E01_PHASE1_COMPLETION_REPORT.md](../reviews/E01_PHASE1_COMPLETION_REPORT.md).
+Phase 3 narrative: [E01_PHASE3_EXECUTIVE_SUMMARY.md](../reviews/E01_PHASE3_EXECUTIVE_SUMMARY.md).
+
+---
+
+*End of E-01 program status — Phase 3.*
