@@ -16,6 +16,17 @@ class AgentType(StrEnum):
     GLOBAL = "Global"
 
 
+class ParticipantRole(StrEnum):
+    """TDS-009 §12.1 commodity participant roles."""
+
+    FARMER = "Farmer"
+    TRADER = "Trader"
+    GINNER = "Ginner"
+    MILLER = "Miller"
+    EXPORTER = "Exporter"
+    AGGREGATOR = "Aggregator"
+
+
 class Direction(StrEnum):
     """TDS-004 signal direction."""
 
@@ -83,3 +94,4 @@ class EventType(StrEnum):
     OUTCOME_CAPTURED = "OUTCOME_CAPTURED"
     DATA_REFRESH_STARTED = "DATA_REFRESH_STARTED"
     DATA_REFRESH_COMPLETED = "DATA_REFRESH_COMPLETED"
+    REGISTRY_VERSION_ACTIVATED = "REGISTRY_VERSION_ACTIVATED"

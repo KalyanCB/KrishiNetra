@@ -1,0 +1,167 @@
+{
+  "commodity": {
+    "commodity_id": "cotton",
+    "name": "Cotton",
+    "status": "active",
+    "reference_implementation_flag": true
+  },
+  "commodity_profile": {
+    "display_name": "Cotton (Shankar / kapas complex)",
+    "unit": "quintal",
+    "currency": "INR",
+    "quality_dimensions": [
+      "grade",
+      "staple_length_mm",
+      "micronaire",
+      "moisture_pct"
+    ],
+    "storage_characteristics": {
+      "moisture_sensitive": true,
+      "pest_risk": "medium"
+    },
+    "participant_roles_enabled": [
+      "Farmer",
+      "Trader",
+      "Ginner",
+      "Miller",
+      "Exporter",
+      "Aggregator"
+    ],
+    "phase_1_active_roles": ["Farmer", "Trader"]
+  },
+  "registry": {
+    "version": "1.0.0",
+    "effective_from": "2026-06-04",
+    "is_active": true,
+    "required_agents": ["Market", "Futures"],
+    "optional_agents": ["Weather", "Policy", "Demand", "Global"],
+    "signal_weights": {
+      "Futures": 0.25,
+      "Market": 0.22,
+      "Policy": 0.15,
+      "Demand": 0.15,
+      "Weather": 0.13,
+      "Global": 0.10
+    },
+    "regime_priority": [
+      "DATA_DEGRADED",
+      "MSP_FLOOR",
+      "CURVE_BACKWARDATION",
+      "TIGHT_SUPPLY",
+      "EXPORT_PUSH",
+      "NORMAL"
+    ],
+    "forecast_horizons": [30, 60, 90],
+    "decision_rules": {
+      "msp_proximity_pct": 0.03,
+      "default_partial_sell_pct": 0.50,
+      "formula_version": "1.0.0"
+    },
+    "price_sources": ["Agmarknet", "eNAM"],
+    "arrival_sources": ["Agmarknet"],
+    "demand_drivers": ["USDA", "ICAC"],
+    "policy_drivers": ["MSP", "CCI", "PIB"],
+    "weather_variables": ["rainfall", "humidity", "acreage"]
+  },
+  "regions": [
+    {
+      "region_id": "reg_tg_state",
+      "name": "Telangana",
+      "type": "state",
+      "parent_region_id": null,
+      "external_refs": {
+        "agmarknet_state": "Telangana"
+      }
+    },
+    {
+      "region_id": "reg_tg_khammam",
+      "name": "Khammam",
+      "type": "mandi",
+      "parent_region_id": "reg_tg_state",
+      "external_refs": {
+        "agmarknet_district": "Khammam"
+      }
+    },
+    {
+      "region_id": "reg_tg_warangal",
+      "name": "Warangal",
+      "type": "mandi",
+      "parent_region_id": "reg_tg_state",
+      "external_refs": {
+        "agmarknet_district": "Warangal"
+      }
+    },
+    {
+      "region_id": "reg_tg_karimnagar",
+      "name": "Karimnagar",
+      "type": "mandi",
+      "parent_region_id": "reg_tg_state",
+      "external_refs": {
+        "agmarknet_district": "Karimnagar"
+      }
+    },
+    {
+      "region_id": "reg_tg_kesamudram",
+      "name": "Kesamudram",
+      "type": "mandi",
+      "parent_region_id": "reg_tg_state",
+      "external_refs": {
+        "agmarknet_district": "Khammam"
+      }
+    }
+  ],
+  "markets": [
+    {
+      "market_id": "mkt_tg_khammam_apmc",
+      "region_id": "reg_tg_khammam",
+      "market_type": "mandi",
+      "name": "Khammam APMC",
+      "source_identifiers": {
+        "agmarknet": {
+          "state": "Telangana",
+          "district": "Khammam",
+          "market": "Khammam"
+        }
+      }
+    },
+    {
+      "market_id": "mkt_tg_warangal",
+      "region_id": "reg_tg_warangal",
+      "market_type": "mandi",
+      "name": "Warangal",
+      "source_identifiers": {
+        "agmarknet": {
+          "state": "Telangana",
+          "district": "Warangal",
+          "market": "Warangal"
+        }
+      }
+    },
+    {
+      "market_id": "mkt_tg_karimnagar",
+      "region_id": "reg_tg_karimnagar",
+      "market_type": "mandi",
+      "name": "Karimnagar",
+      "source_identifiers": {
+        "agmarknet": {
+          "state": "Telangana",
+          "district": "Karimnagar",
+          "market": "Karimnagar"
+        }
+      }
+    },
+    {
+      "market_id": "mkt_tg_kesamudram",
+      "region_id": "reg_tg_kesamudram",
+      "market_type": "mandi",
+      "name": "Kesamudram",
+      "source_identifiers": {
+        "agmarknet": {
+          "state": "Telangana",
+          "district": "Khammam",
+          "market": "Kesamudram"
+        }
+      }
+    }
+  ]
+}

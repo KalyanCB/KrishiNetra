@@ -1,25 +1,28 @@
-"""E-01-S10: CommodityRegistry validation and activation tests."""
+"""E-01-S10 + E-02: CommodityRegistry validation, activation, and service tests."""
 
 from __future__ import annotations
 
 from datetime import date
+from unittest.mock import patch
 from uuid import uuid4
 
 import pytest
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+from tests.integration.test_cotton_registry import _cleanup_cotton
 
 from backend.app.persistence.models.reference import CommodityModel, CommodityStatus
 from backend.app.persistence.models.registry import CommodityRegistryModel
 from backend.app.persistence.repositories.registry import CommodityRegistryRepository
-from backend.app.persistence.services.registry_service import (
-    RegistryNotFoundError,
-    RegistryService,
-)
+from backend.app.persistence.seeds.runner import SeedRunner
 from backend.app.persistence.validation.registry import (
     RegistryValidationError,
     validate_required_agents,
+)
+from backend.app.services.registry.service import (
+    RegistryNotFoundError,
+    RegistryService,
 )
 
 
@@ -132,8 +135,8 @@ def test_version_activation(migrated_database: str) -> None:
         repo.activate_version(v2.registry_id, effective_to_for_prior=date(2026, 6, 3))
         session.commit()
 
-        service = RegistryService(session)
-        active = service.get_active_config(commodity_id)
+        active = repo.get_active(commodity_id)
+        assert active is not None
         assert active.version == "1.1.0"
         assert active.is_active is True
 
@@ -153,18 +156,132 @@ def test_version_activation(migrated_database: str) -> None:
 def test_registry_service_raises_when_no_active(migrated_database: str) -> None:
     engine = create_engine(migrated_database, pool_pre_ping=True)
     with Session(engine) as session:
-        commodity = CommodityModel(
-            commodity_id="reg_missing_test",
-            name="Registry Missing Test",
-            status=CommodityStatus.DRAFT.value,
-        )
-        session.add(commodity)
-        session.commit()
+        _cleanup_cotton(session)
 
         service = RegistryService(session)
         with pytest.raises(RegistryNotFoundError):
-            service.get_active_config("reg_missing_test")
+            service.get_active_config("cotton")
+    engine.dispose()
 
-        session.delete(commodity)
+
+def _registry_config(row: CommodityRegistryModel) -> dict:
+    return {
+        "version": row.version,
+        "effective_from": row.effective_from,
+        "required_agents": row.required_agents,
+        "optional_agents": row.optional_agents,
+        "signal_weights": row.signal_weights,
+        "regime_priority": row.regime_priority,
+        "forecast_horizons": row.forecast_horizons,
+        "decision_rules": row.decision_rules,
+    }
+
+
+@pytest.mark.integration
+def test_historical_registry_readable(migrated_database: str) -> None:
+    commodity_id = f"reg_hist_{uuid4().hex[:8]}"
+    engine = create_engine(migrated_database, pool_pre_ping=True)
+    with Session(engine) as session:
+        session.add(
+            CommodityModel(
+                commodity_id=commodity_id,
+                name="Historical Test",
+                status=CommodityStatus.DRAFT.value,
+            )
+        )
+        session.flush()
+
+        service = RegistryService(session)
+        v1 = _registry_row(commodity_id=commodity_id, version="1.0.0")
+        created_v1 = service.create_registry_version(commodity_id, _registry_config(v1))
+        service.activate_registry_version(
+            created_v1.registry_id, effective_to_for_prior=date(2026, 6, 3)
+        )
+
+        v2 = _registry_row(commodity_id=commodity_id, version="1.1.0")
+        created_v2 = service.create_registry_version(commodity_id, _registry_config(v2))
+        service.activate_registry_version(
+            created_v2.registry_id, effective_to_for_prior=date(2026, 6, 4)
+        )
         session.commit()
+
+        historical = service.get_registry_by_id(created_v1.registry_id)
+        assert historical is not None
+        assert historical.version == "1.0.0"
+        assert historical.is_active is False
+
+        for row in session.scalars(
+            select(CommodityRegistryModel).where(
+                CommodityRegistryModel.commodity_id == commodity_id
+            )
+        ):
+            session.delete(row)
+        session.delete(session.get(CommodityModel, commodity_id))
+        session.commit()
+    engine.dispose()
+
+
+@pytest.mark.integration
+def test_activation_audit_log(migrated_database: str) -> None:
+    commodity_id = f"reg_audit_{uuid4().hex[:8]}"
+    engine = create_engine(migrated_database, pool_pre_ping=True)
+    with Session(engine) as session:
+        session.add(
+            CommodityModel(
+                commodity_id=commodity_id,
+                name="Audit Test",
+                status=CommodityStatus.DRAFT.value,
+            )
+        )
+        session.flush()
+
+        service = RegistryService(session)
+        row = _registry_row(commodity_id=commodity_id)
+        created = service.create_registry_version(commodity_id, _registry_config(row))
+
+        with patch(
+            "backend.app.services.registry.service.emit_registry_version_activated"
+        ) as mock_audit:
+            service.activate_registry_version(created.registry_id)
+            session.commit()
+            mock_audit.assert_called_once()
+            assert mock_audit.call_args.kwargs["commodity_id"] == commodity_id
+
+        for row_db in session.scalars(
+            select(CommodityRegistryModel).where(
+                CommodityRegistryModel.commodity_id == commodity_id
+            )
+        ):
+            session.delete(row_db)
+        session.delete(session.get(CommodityModel, commodity_id))
+        session.commit()
+    engine.dispose()
+
+
+@pytest.mark.integration
+def test_registry_cache_invalidation(migrated_database: str) -> None:
+    engine = create_engine(migrated_database, pool_pre_ping=True)
+    RegistryService._cache.clear()
+    with Session(engine) as session:
+        _cleanup_cotton(session)
+        SeedRunner(session).apply("cotton")
+        session.commit()
+
+        service = RegistryService(session)
+        first = service.get_active_config("cotton")
+        assert first.version == "1.0.0"
+
+        v2_config = _registry_config(
+            _registry_row(commodity_id="cotton", version="1.1.0")
+        )
+        v2_config["effective_from"] = date(2026, 6, 5)
+        created = service.create_registry_version("cotton", v2_config)
+        service.activate_registry_version(created.registry_id)
+        session.commit()
+
+        refreshed = service.get_active_config("cotton")
+        assert refreshed.version == "1.1.0"
+
+        RegistryService._cache.clear()
+        _cleanup_cotton(session)
     engine.dispose()

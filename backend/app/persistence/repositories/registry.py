@@ -33,7 +33,10 @@ class CommodityRegistryRepository(BaseRepository[CommodityRegistryModel]):
         validate_registry_config(
             required_agents=entity.required_agents,
             optional_agents=entity.optional_agents,
+            signal_weights=entity.signal_weights,
+            forecast_horizons=entity.forecast_horizons,
             decision_rules=entity.decision_rules,
+            commodity_id=entity.commodity_id,
         )
         return self.insert(entity)
 

@@ -30,6 +30,11 @@ class Settings(BaseSettings):
         validation_alias="MI_CACHE_TTL_SECONDS",
         description="Redis MI snapshot TTL — TDS-006 §4 default 48h",
     )
+    ops_api_key: str = Field(
+        default="",
+        validation_alias="OPS_API_KEY",
+        description="Service key for internal registry ops (TDS-012 §3)",
+    )
 
 
 @lru_cache

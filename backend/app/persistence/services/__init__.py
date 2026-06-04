@@ -1,6 +1,6 @@
 """Persistence services (E-01-S10+)."""
 
-from backend.app.persistence.services.registry_service import (
+from backend.app.services.registry import (
     RegistryNotFoundError,
     RegistryService,
 )
