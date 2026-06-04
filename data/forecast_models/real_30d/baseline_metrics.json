@@ -1,0 +1,41 @@
+[
+  {
+    "fold_count": 50,
+    "horizon_days": 30,
+    "metrics": {
+      "mae": 0.0,
+      "mape_pct": 0.0,
+      "n_samples": 1000,
+      "rmse": 0.0
+    },
+    "mode": "real",
+    "model_name": "naive_persistence",
+    "model_path": "/Users/kalyancb/KrishiNetra/data/forecast_models/real_30d/naive_persistence.joblib"
+  },
+  {
+    "fold_count": 50,
+    "horizon_days": 30,
+    "metrics": {
+      "mae": 0.0,
+      "mape_pct": 0.0,
+      "n_samples": 1000,
+      "rmse": 0.0
+    },
+    "mode": "real",
+    "model_name": "linear_regression",
+    "model_path": "/Users/kalyancb/KrishiNetra/data/forecast_models/real_30d/linear_regression.joblib"
+  },
+  {
+    "fold_count": 50,
+    "horizon_days": 30,
+    "metrics": {
+      "mae": 0.0,
+      "mape_pct": 0.0,
+      "n_samples": 1000,
+      "rmse": 0.0
+    },
+    "mode": "real",
+    "model_name": "random_forest",
+    "model_path": "/Users/kalyancb/KrishiNetra/data/forecast_models/real_30d/random_forest.joblib"
+  }
+]

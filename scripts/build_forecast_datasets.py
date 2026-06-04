@@ -122,6 +122,11 @@ def _parse_args() -> argparse.Namespace:
         help="Directory for JSONL exports",
     )
     parser.add_argument(
+        "--filename-prefix",
+        default="",
+        help="Prefix for JSONL filenames (e.g. real_ → real_forecast_target_30d.jsonl)",
+    )
+    parser.add_argument(
         "--write-report",
         action="store_true",
         help=f"Write markdown report to {DEFAULT_REPORT}",
@@ -165,7 +170,9 @@ def main() -> int:
         engine.dispose()
         db_url_for_report = database_url
 
-    paths = export_datasets_jsonl(result, args.output_dir)
+    paths = export_datasets_jsonl(
+        result, args.output_dir, filename_prefix=args.filename_prefix
+    )
     for horizon, path in sorted(paths.items()):
         stat = result.stats[horizon]
         print(f"horizon_{horizon}d rows={stat.row_count} path={path}")

@@ -73,16 +73,32 @@ def _evaluate_model_rolling(
     return regression_metrics(y_true, y_pred), fold_count
 
 
+def _artifact_directory(
+    output_dir: Path,
+    horizon_days: int,
+    *,
+    use_horizon_subdir: bool,
+) -> Path:
+    path = output_dir / f"{horizon_days}d" if use_horizon_subdir else output_dir
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
 def train_full_corpus_and_save(
     dataset: ForecastTrainingDataset,
     model_name: str,
     output_dir: Path,
+    *,
+    use_horizon_subdir: bool = True,
 ) -> Path:
     """Fit on full corpus and persist with joblib (artifact for inspection, not OOS metrics)."""
     model = build_baseline_model(model_name, feature_names=dataset.feature_names)
     model.fit(dataset.X, dataset.y)
-    horizon_dir = output_dir / f"{dataset.horizon_days}d"
-    horizon_dir.mkdir(parents=True, exist_ok=True)
+    horizon_dir = _artifact_directory(
+        output_dir,
+        dataset.horizon_days,
+        use_horizon_subdir=use_horizon_subdir,
+    )
     path = horizon_dir / f"{model_name}.joblib"
     joblib.dump(
         {
@@ -96,11 +112,31 @@ def train_full_corpus_and_save(
     return path
 
 
+def best_non_naive_beats_naive(
+    results: tuple[BaselineEvaluationResult, ...],
+    *,
+    metric: str = "rmse",
+) -> bool:
+    """True when any non-naive model has strictly lower ``metric`` than naive."""
+    by_name = {r.model_name: r for r in results}
+    naive = by_name.get("naive_persistence")
+    if naive is None:
+        return False
+    naive_value = getattr(naive.metrics, metric)
+    for name, row in by_name.items():
+        if name == "naive_persistence":
+            continue
+        if getattr(row.metrics, metric) < naive_value:
+            return True
+    return False
+
+
 def evaluate_all_baselines(
     dataset: ForecastTrainingDataset,
     *,
     output_dir: Path | None = None,
     save_models: bool = True,
+    use_horizon_subdir: bool = True,
     min_train_size: int = DEFAULT_MIN_TRAIN_SIZE,
     test_size: int = DEFAULT_TEST_SIZE,
     step: int | None = DEFAULT_STEP,
@@ -118,7 +154,12 @@ def evaluate_all_baselines(
         )
         model_path: Path | None = None
         if save_models:
-            model_path = train_full_corpus_and_save(dataset, name, models_dir)
+            model_path = train_full_corpus_and_save(
+                dataset,
+                name,
+                models_dir,
+                use_horizon_subdir=use_horizon_subdir,
+            )
         results.append(
             BaselineEvaluationResult(
                 model_name=name,

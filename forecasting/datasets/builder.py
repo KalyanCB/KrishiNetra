@@ -354,11 +354,13 @@ def build_fixture_datasets(
 def export_datasets_jsonl(
     result: BuildResult,
     output_dir: Path,
+    *,
+    filename_prefix: str = "",
 ) -> dict[int, Path]:
     output_dir.mkdir(parents=True, exist_ok=True)
     paths: dict[int, Path] = {}
     for horizon, rows in result.datasets.items():
-        path = output_dir / f"forecast_target_{horizon}d.jsonl"
+        path = output_dir / f"{filename_prefix}forecast_target_{horizon}d.jsonl"
         with path.open("w", encoding="utf-8") as handle:
             for row in rows:
                 handle.write(json.dumps(row.to_export_dict(), sort_keys=True))

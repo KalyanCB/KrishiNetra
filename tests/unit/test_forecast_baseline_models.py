@@ -20,8 +20,12 @@ from forecasting.datasets.builder import build_fixture_datasets
 from forecasting.datasets.training import (
     FIXTURE_TRAINING_SEED,
     SPOT_FEATURE_NAME,
+    build_result_from_jsonl_rows,
     from_build_result,
     load_fixture_training_dataset,
+    load_jsonl_rows,
+    load_real_training_dataset,
+    row_from_jsonl_record,
 )
 from forecasting.models.baselines import (
     BASELINE_MODEL_NAMES,
@@ -30,7 +34,11 @@ from forecasting.models.baselines import (
     build_baseline_model,
 )
 from forecasting.models.metrics import regression_metrics
-from forecasting.models.pipeline import evaluate_all_baselines, export_metrics_json
+from forecasting.models.pipeline import (
+    best_non_naive_beats_naive,
+    evaluate_all_baselines,
+    export_metrics_json,
+)
 
 
 def test_fixture_training_seed_constant() -> None:
@@ -129,6 +137,75 @@ def test_build_baseline_model_names() -> None:
         model.fit(dataset.X[:10], dataset.y[:10])
         preds = model.predict(dataset.X[10:12])
         assert preds.shape == (2,)
+
+
+def test_row_from_jsonl_record_minimal() -> None:
+    row = row_from_jsonl_record(
+        {
+            "as_of_date": "2023-06-01",
+            "commodity_id": "cotton",
+            "horizon_days": 30,
+            "spot_price_level": "1000.0",
+            "target_price_level": "1100.0",
+            "target_log_return": 0.09531,
+        }
+    )
+    assert row.commodity_id == "cotton"
+    assert row.horizon_days == 30
+    assert float(row.spot_price_level) == pytest.approx(1000.0)
+
+
+def test_load_real_training_dataset_30d_shape() -> None:
+    dataset = load_real_training_dataset(horizon_days=30)
+    assert dataset.mode == "real"
+    assert dataset.horizon_days == 30
+    assert dataset.n_samples == 1069
+    assert dataset.feature_names[0] == SPOT_FEATURE_NAME
+    assert dataset.n_features == 1
+
+
+def test_real_jsonl_roundtrip_build_result(tmp_path: Path) -> None:
+    fixture_ds = load_fixture_training_dataset(horizon_days=30)
+    jsonl_path = tmp_path / "real_forecast_target_30d.jsonl"
+    rows = build_result_from_jsonl_rows(
+        tuple(
+            row_from_jsonl_record(
+                {
+                    "as_of_date": d.isoformat(),
+                    "commodity_id": "cotton",
+                    "horizon_days": 30,
+                    "spot_price_level": str(fixture_ds.X[i, 0]),
+                    "target_price_level": str(fixture_ds.y[i]),
+                    "target_log_return": 0.0,
+                }
+            )
+            for i, d in enumerate(fixture_ds.as_of_dates[:5])
+        ),
+        horizon_days=30,
+    ).datasets[30]
+    with jsonl_path.open("w", encoding="utf-8") as handle:
+        for row in rows:
+            handle.write(
+                json.dumps(
+                    {
+                        "as_of_date": row.as_of_date.isoformat(),
+                        "commodity_id": row.commodity_id,
+                        "horizon_days": row.horizon_days,
+                        "spot_price_level": str(row.spot_price_level),
+                        "target_price_level": str(row.target_price_level),
+                        "target_log_return": row.target_log_return,
+                    }
+                )
+            )
+            handle.write("\n")
+    loaded = load_jsonl_rows(jsonl_path)
+    assert len(loaded) == 5
+
+
+def test_best_non_naive_beats_naive_helper() -> None:
+    dataset = load_fixture_training_dataset(horizon_days=30)
+    results = evaluate_all_baselines(dataset, save_models=False)
+    assert best_non_naive_beats_naive(results, metric="rmse") is True
 
 
 def test_training_dataset_empty_horizon_raises() -> None:
