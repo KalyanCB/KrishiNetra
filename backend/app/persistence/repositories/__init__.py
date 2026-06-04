@@ -28,6 +28,7 @@ from backend.app.persistence.repositories.signal import (
     SignalSnapshotRepository,
     StructuredSignalRepository,
 )
+from backend.app.persistence.repositories.weather import WeatherObservationRepository
 
 __all__ = [
     "DecisionSessionRepository",
@@ -48,4 +49,5 @@ __all__ = [
     "UserContextRepository",
     "SignalSnapshotRepository",
     "StructuredSignalRepository",
+    "WeatherObservationRepository",
 ]

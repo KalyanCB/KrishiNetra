@@ -26,6 +26,20 @@ pytestmark = pytest.mark.integration
 
 
 def _cleanup_cotton(session: Session) -> None:
+    from sqlalchemy import text
+
+    session.execute(
+        text("DELETE FROM data_quality_snapshot WHERE commodity_id = 'cotton'")
+    )
+    session.execute(
+        text("DELETE FROM price_observation WHERE commodity_id = 'cotton'")
+    )
+    session.execute(
+        text("DELETE FROM arrival_observation WHERE commodity_id = 'cotton'")
+    )
+    session.execute(
+        text("DELETE FROM weather_observation WHERE commodity_id = 'cotton'")
+    )
     for market in session.scalars(
         select(MarketModel).where(MarketModel.commodity_id == "cotton")
     ):

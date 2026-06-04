@@ -35,6 +35,11 @@ class Settings(BaseSettings):
         validation_alias="OPS_API_KEY",
         description="Service key for internal registry ops (TDS-012 §3)",
     )
+    ogd_api_key: str = Field(
+        default="",
+        validation_alias="OGD_API_KEY",
+        description="Registered data.gov.in API key for Agmarknet OGD pulls (E-03)",
+    )
 
 
 @lru_cache

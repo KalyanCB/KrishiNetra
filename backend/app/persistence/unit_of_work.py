@@ -31,6 +31,7 @@ from backend.app.persistence.repositories.signal import (
     SignalSnapshotRepository,
     StructuredSignalRepository,
 )
+from backend.app.persistence.repositories.weather import WeatherObservationRepository
 
 
 class UnitOfWork:
@@ -44,6 +45,7 @@ class UnitOfWork:
         self.quality_snapshots = DataQualitySnapshotRepository(self.session)
         self.price_observations = PriceObservationRepository(self.session)
         self.arrival_observations = ArrivalObservationRepository(self.session)
+        self.weather_observations = WeatherObservationRepository(self.session)
         self.structured_signals = StructuredSignalRepository(self.session)
         self.signal_snapshots = SignalSnapshotRepository(self.session)
         self.forecasts = ForecastRepository(self.session)

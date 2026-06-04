@@ -43,6 +43,11 @@ from backend.app.persistence.models.signal import (
     SignalSnapshotModel,
     StructuredSignalModel,
 )
+from backend.app.persistence.models.weather import (
+    WEATHER_OBSERVATION_RETENTION_YEARS,
+    WeatherObservationModel,
+    WeatherObservationSource,
+)
 
 __all__ = [
     "DECISION_RETENTION_YEARS",
@@ -74,4 +79,7 @@ __all__ = [
     "STRUCTURED_SIGNAL_RETENTION_YEARS",
     "SignalSnapshotModel",
     "StructuredSignalModel",
+    "WEATHER_OBSERVATION_RETENTION_YEARS",
+    "WeatherObservationModel",
+    "WeatherObservationSource",
 ]

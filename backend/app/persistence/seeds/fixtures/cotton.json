@@ -108,6 +108,24 @@
       "external_refs": {
         "agmarknet_district": "Khammam"
       }
+    },
+    {
+      "region_id": "reg_tg_nalgonda",
+      "name": "Nalgonda",
+      "type": "mandi",
+      "parent_region_id": "reg_tg_state",
+      "external_refs": {
+        "weather_district": "Nalgonda"
+      }
+    },
+    {
+      "region_id": "reg_tg_mahabubabad",
+      "name": "Mahabubabad",
+      "type": "mandi",
+      "parent_region_id": "reg_tg_state",
+      "external_refs": {
+        "weather_district": "Mahabubabad"
+      }
     }
   ],
   "markets": [

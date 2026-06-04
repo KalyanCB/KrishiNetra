@@ -154,6 +154,7 @@ def test_version_activation(migrated_database: str) -> None:
 
 @pytest.mark.integration
 def test_registry_service_raises_when_no_active(migrated_database: str) -> None:
+    RegistryService._cache.clear()
     engine = create_engine(migrated_database, pool_pre_ping=True)
     with Session(engine) as session:
         _cleanup_cotton(session)

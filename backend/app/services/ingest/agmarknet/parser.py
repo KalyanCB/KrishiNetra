@@ -1,4 +1,4 @@
-"""Parse OGD Agmarknet JSON envelopes and row records (spike only)."""
+"""Parse OGD Agmarknet JSON envelopes and row records."""
 
 from __future__ import annotations
 

@@ -41,7 +41,7 @@ def migrated_database(alembic_config: Config) -> str:
         version = conn.execute(
             text("SELECT version_num FROM alembic_version")
         ).scalar_one()
-        assert version == "0008_decision_stack"
+        assert version == "0010_partition_backfill"
 
     engine.dispose()
     return db_url

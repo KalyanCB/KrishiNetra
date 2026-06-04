@@ -1,4 +1,4 @@
-"""Map parsed Agmarknet rows to observation drafts (spike only)."""
+"""Map parsed Agmarknet rows to observation drafts."""
 
 from __future__ import annotations
 

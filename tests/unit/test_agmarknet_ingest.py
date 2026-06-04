@@ -1,4 +1,4 @@
-"""PI5 Track B: Agmarknet parser and mapper spike tests (non-production)."""
+"""Agmarknet parser and mapper unit tests (PI5 spike + E-03-S01 shared)."""
 
 from __future__ import annotations
 

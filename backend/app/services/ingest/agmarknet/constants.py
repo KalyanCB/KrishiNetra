@@ -10,6 +10,9 @@ DEFAULT_ARRIVAL_UNIT = "quintal"
 TONNES_TO_QUINTAL = 10
 
 OGD_RESOURCE_UUID = "9ef84268-d588-465a-a308-a864a43d0070"
+OGD_API_BASE_URL = "https://api.data.gov.in/resource"
+DEFAULT_OGD_PAGE_LIMIT = 1000
+DEFAULT_OGD_FORMAT = "json"
 
 # String labels → cotton (E-02 / AGMARKNET_DATA_PROOF §4).
 COTTON_COMMODITY_LABELS: frozenset[str] = frozenset(

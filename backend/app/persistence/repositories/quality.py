@@ -46,3 +46,25 @@ class DataQualitySnapshotRepository(BaseRepository[DataQualitySnapshotModel]):
         validate_quality_score(entity.overall_quality_score)
         validate_confidence_penalty(entity.confidence_penalty_factor)
         return self.insert(entity)
+
+    def upsert_snapshot(
+        self, entity: DataQualitySnapshotModel
+    ) -> DataQualitySnapshotModel:
+        """Insert or replace metrics for (commodity_id, as_of_date, registry_id)."""
+        validate_quality_score(entity.overall_quality_score)
+        validate_confidence_penalty(entity.confidence_penalty_factor)
+        existing = self.get_by_commodity_date(
+            entity.commodity_id,
+            entity.as_of_date,
+            registry_id=entity.registry_id,
+        )
+        if existing is None:
+            return self.insert(entity)
+        existing.source_health = entity.source_health
+        existing.overall_quality_score = entity.overall_quality_score
+        existing.agmarknet_lag_hours = entity.agmarknet_lag_hours
+        existing.futures_feed_ok = entity.futures_feed_ok
+        existing.signals_missing = entity.signals_missing
+        existing.confidence_penalty_factor = entity.confidence_penalty_factor
+        self._session.flush()
+        return existing

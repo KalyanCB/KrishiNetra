@@ -397,6 +397,10 @@ def cleanup_cotton_test(session: Session) -> None:
         {"cid": commodity_id},
     )
     session.execute(
+        text("DELETE FROM weather_observation WHERE commodity_id = :cid"),
+        {"cid": commodity_id},
+    )
+    session.execute(
         text("DELETE FROM commodity_registry WHERE commodity_id = :cid"),
         {"cid": commodity_id},
     )

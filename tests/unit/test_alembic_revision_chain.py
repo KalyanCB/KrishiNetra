@@ -13,7 +13,7 @@ def test_alembic_revision_chain_linear() -> None:
     cfg = Config(str(root / "alembic.ini"))
     script = ScriptDirectory.from_config(cfg)
     heads = script.get_heads()
-    assert heads == ["0008_decision_stack"]
+    assert heads == ["0010_partition_backfill"]
     revisions = list(script.walk_revisions(base="base", head=heads[0]))
     ids = [rev.revision for rev in reversed(revisions)]
     assert ids == [
@@ -25,6 +25,8 @@ def test_alembic_revision_chain_linear() -> None:
         "0006_signals_partitioned",
         "0007_forecast_and_features",
         "0008_decision_stack",
+        "0009_weather_observations",
+        "0010_partition_backfill",
     ]
 
 
