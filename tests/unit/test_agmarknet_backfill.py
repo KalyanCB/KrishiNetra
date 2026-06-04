@@ -18,8 +18,13 @@ from backend.app.services.ingest.agmarknet.backfill import (
     find_missing_periods,
     format_ogd_arrival_date,
     iter_backfill_dates,
-    load_expected_market_ids,
     render_backfill_report_markdown,
+)
+from backend.app.services.ingest.agmarknet.expected_markets import (
+    TELANGANA_PRIMARY_MARKET_IDS,
+    load_backfill_ogd_states,
+    load_expected_market_ids,
+    load_telangana_primary_market_ids,
 )
 
 FIXTURE_PATH = (
@@ -30,11 +35,31 @@ FIXTURE_PATH = (
 )
 
 
-def test_load_expected_market_ids_returns_four_mandis() -> None:
-    ids = load_expected_market_ids()
+def test_load_telangana_primary_market_ids_returns_four_mandis() -> None:
+    ids = load_telangana_primary_market_ids()
+    assert ids == TELANGANA_PRIMARY_MARKET_IDS
     assert len(ids) == 4
+
+
+def test_load_expected_market_ids_returns_twenty_seven_mandis() -> None:
+    ids = load_expected_market_ids()
+    assert len(ids) == 27
+
+
+def test_load_backfill_ogd_states_covers_five_states() -> None:
+    states = load_backfill_ogd_states()
+    assert len(states) == 5
+    assert "Telangana" in states
+    assert "Maharashtra" in states
+
+
+def test_load_expected_market_ids_returns_cotton_belt_mandis() -> None:
+    ids = load_expected_market_ids()
+    assert len(ids) >= 20
     assert "mkt_tg_khammam_apmc" in ids
     assert "mkt_tg_warangal" in ids
+    assert "mkt_mh_amravati" in ids
+    assert "mkt_gj_rajkot" in ids
 
 
 def test_format_ogd_arrival_date() -> None:
@@ -61,6 +86,18 @@ def test_fixture_replay_client_stamps_arrival_date() -> None:
     rows = client.fetch_all(filters={"arrival_date": "01/06/2026"})
     assert rows
     assert all(r["arrival_date"] == "01/06/2026" for r in rows)
+
+
+def test_fixture_replay_client_filters_by_state() -> None:
+    client = FixtureReplayOgdClient(FIXTURE_PATH)
+    tg = client.fetch_all(
+        filters={"state": "Telangana", "arrival_date": "01/06/2026"}
+    )
+    mh = client.fetch_all(
+        filters={"state": "Maharashtra", "arrival_date": "01/06/2026"}
+    )
+    assert len(tg) == 4
+    assert mh == []
 
 
 def test_find_missing_periods_detects_gap() -> None:
@@ -90,7 +127,7 @@ def test_backfill_pipeline_fixture_dry_run_three_days() -> None:
     window = BackfillWindow(start=date(2026, 6, 1), end=date(2026, 6, 3))
     result = pipeline.run(window, dry_run=True)
 
-    assert result.days_fetched == 3
+    assert result.days_fetched == 3 * len(load_backfill_ogd_states())
     assert result.dry_run is True
     assert result.ogd_rows_fetched == 4 * 3
     session.rollback.assert_called()

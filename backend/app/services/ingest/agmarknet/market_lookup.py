@@ -64,7 +64,7 @@ def _normalize(value: str) -> str:
 def load_market_lookup_from_seed(
     seed_path: Path | None = None,
 ) -> AgmarknetMarketLookup:
-    """Build lookup from cotton.json E-02 seed (4 Telangana mandis)."""
+    """Build lookup from cotton.json E-02 seed (Agmarknet markets)."""
     if seed_path is None:
         seed_path = (
             Path(__file__).resolve().parents[3]

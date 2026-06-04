@@ -98,7 +98,7 @@ def test_resolve_commodity_cotton_variants() -> None:
     assert resolve_commodity_id("Maize") is None
 
 
-def test_market_lookup_resolves_four_telangana_mandis(market_lookup) -> None:
+def test_market_lookup_resolves_telangana_proof_mandis(market_lookup) -> None:
     assert (
         market_lookup.resolve(state="Telangana", district="Khammam", market="Khammam")
         == "mkt_tg_khammam_apmc"

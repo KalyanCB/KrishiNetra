@@ -32,4 +32,4 @@ def test_cotton_fixture_has_telangana_regions() -> None:
     data = load_fixture("cotton")
     region_ids = {r["region_id"] for r in data["regions"]}
     assert "reg_tg_state" in region_ids
-    assert len(data["markets"]) >= 4
+    assert len(data["markets"]) >= 20

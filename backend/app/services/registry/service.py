@@ -8,7 +8,7 @@ from datetime import date
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, object_session
 
 from backend.app.persistence.models.registry import CommodityRegistryModel
 from backend.app.persistence.repositories.registry import CommodityRegistryRepository
@@ -52,7 +52,9 @@ class RegistryService:
 
         cached = self._cache.get(commodity_id)
         if cached is not None and cached.expires_at > time.monotonic():
-            return cached.config
+            if object_session(cached.config) is self._session:
+                return cached.config
+            self._cache.pop(commodity_id, None)
 
         config = self._repo.get_active(commodity_id)
         if config is None:

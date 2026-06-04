@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""PI6 Track B: Historical Agmarknet cotton backfill for Telangana mandis.
+"""PI7 Track A: Historical Agmarknet cotton backfill for cotton belt mandis.
 
 Usage (fixture replay, no API key):
     DATABASE_URL=postgresql://krishinetra:krishinetra@127.0.0.1:5432/krishinetra \\
@@ -36,6 +36,10 @@ from backend.app.services.ingest.agmarknet.backfill import (
     compute_backfill_stats,
     default_backfill_window,
     render_backfill_report_markdown,
+)
+from backend.app.services.ingest.agmarknet.expected_markets import (
+    load_expected_market_ids,
+    load_telangana_primary_market_ids,
 )
 
 DEFAULT_FIXTURE = (
@@ -105,7 +109,19 @@ def _parse_args() -> argparse.Namespace:
         action="store_true",
         help="Skip cotton baseline seed before backfill",
     )
+    parser.add_argument(
+        "--scope",
+        choices=("telangana", "belt"),
+        default="belt",
+        help="Coverage stats scope: full cotton belt seed (default) or 4 TG mandis",
+    )
     return parser.parse_args()
+
+
+def _resolve_expected_market_ids(scope: str) -> tuple[str, ...]:
+    if scope == "belt":
+        return load_expected_market_ids()
+    return load_telangana_primary_market_ids()
 
 
 def _resolve_window(args: argparse.Namespace) -> BackfillWindow:
@@ -127,6 +143,7 @@ def main() -> int:
         return 1
 
     engine = create_engine(db_url, pool_pre_ping=True)
+    expected_markets = _resolve_expected_market_ids(args.scope)
     backfill_result = None
     try:
         with Session(engine) as session:
@@ -150,10 +167,26 @@ def main() -> int:
                     session,
                     ogd_client=client,  # type: ignore[arg-type]
                     seed_cotton=not args.no_seed,
+                    expected_market_ids=expected_markets,
                 )
                 backfill_result = pipeline.run(window, dry_run=args.dry_run)
 
-            stats = compute_backfill_stats(session, window)
+            stats = compute_backfill_stats(
+                session, window, expected_market_ids=expected_markets
+            )
+
+            from backend.app.services.quality.snapshot_service import (
+                DataQualitySnapshotService,
+            )
+
+            snapshot = DataQualitySnapshotService(
+                session
+            ).record_after_agmarknet_backfill(
+                window_start=window.start,
+                window_end=window.end,
+                expected_market_ids=expected_markets,
+            )
+            session.commit()
 
             if args.write_report:
                 report = render_backfill_report_markdown(
@@ -178,6 +211,15 @@ def main() -> int:
         "dry_run": args.dry_run,
         "fixture_mode": args.fixture,
         "stats": stats.to_dict(),
+    }
+    payload["quality_snapshot"] = {
+        "as_of_date": snapshot.as_of_date.isoformat(),
+        "overall_quality_score": str(snapshot.overall_quality_score),
+        "agmarknet_lag_hours": (
+            str(snapshot.agmarknet_lag_hours)
+            if snapshot.agmarknet_lag_hours is not None
+            else None
+        ),
     }
     if backfill_result is not None:
         payload["ingest"] = {

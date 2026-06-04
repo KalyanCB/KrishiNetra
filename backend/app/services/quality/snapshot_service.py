@@ -371,7 +371,7 @@ def _combined_overall_score(
         anomaly_count=ag_metrics.anomaly_count,
         row_count=max(price_rows, 1),
     )
-    if weather_metrics is None:
+    if weather_metrics is None or weather_metrics.regions_reporting <= 0:
         return ag_score
     weather_rows = weather_metrics.days_with_data * max(
         weather_metrics.regions_reporting, 1

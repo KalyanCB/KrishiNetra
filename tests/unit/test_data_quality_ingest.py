@@ -17,12 +17,15 @@ from backend.app.persistence.seeds.runner import SeedRunner
 from backend.app.services.ingest.agmarknet.backfill import BackfillWindow
 from backend.app.services.ingest.agmarknet.pipeline import AgmarknetIngestPipeline
 from backend.app.services.quality.metrics import (
+    AgmarknetQualityMetrics,
+    WeatherQualityMetrics,
     classify_source_health,
     compute_overall_quality_score,
     coverage_ratio,
 )
 from backend.app.services.quality.snapshot_service import (
     DataQualitySnapshotService,
+    _combined_overall_score,
     compute_agmarknet_metrics,
 )
 from backend.app.services.registry.service import RegistryService
@@ -62,6 +65,38 @@ def test_classify_source_health_fresh_when_healthy() -> None:
         )
         == "fresh"
     )
+
+
+def test_combined_score_ignores_empty_weather_tier() -> None:
+    ag = AgmarknetQualityMetrics(
+        markets_expected=4,
+        markets_reporting=2,
+        coverage_ratio=0.5,
+        window_days=30,
+        days_with_data=29,
+        completeness_ratio=29 / 30,
+        latest_as_of_date=date(2026, 6, 4),
+        latest_observed_at=datetime(2026, 6, 4, 12, 0, tzinfo=UTC),
+        agmarknet_lag_hours=2.0,
+        anomaly_count=0,
+    )
+    empty_weather = WeatherQualityMetrics(
+        regions_expected=5,
+        regions_reporting=0,
+        coverage_ratio=0.0,
+        window_days=30,
+        days_with_data=0,
+        completeness_ratio=0.0,
+        latest_as_of_date=None,
+        latest_observed_at=None,
+        weather_lag_hours=None,
+        anomaly_count=0,
+    )
+    ag_only = _combined_overall_score(ag_metrics=ag, weather_metrics=None)
+    with_empty = _combined_overall_score(
+        ag_metrics=ag, weather_metrics=empty_weather
+    )
+    assert ag_only == with_empty
 
 
 def test_compute_overall_quality_score_in_unit_interval() -> None:
@@ -134,7 +169,11 @@ def test_quality_snapshot_after_agmarknet_fixture(migrated_database: str) -> Non
         assert snapshot.registry_id == registry.registry_id
         assert snapshot.agmarknet_lag_hours is not None
         detail = snapshot.source_health.get("agmarknet_detail", {})
-        assert detail.get("markets_expected") == 4
+        from backend.app.services.ingest.agmarknet.expected_markets import (
+            load_expected_market_ids,
+        )
+
+        assert detail.get("markets_expected") == len(load_expected_market_ids())
         assert detail.get("markets_reporting", 0) >= 1
         assert detail.get("anomaly_count", 0) >= 0
         assert snapshot.source_health.get("agmarknet") in {

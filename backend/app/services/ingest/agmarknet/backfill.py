@@ -1,8 +1,9 @@
-"""Historical Agmarknet backfill — date-window OGD pulls for Telangana cotton mandis."""
+"""Historical Agmarknet backfill — date-window OGD pulls for cotton belt mandis."""
 
 from __future__ import annotations
 
 import json
+import time
 from dataclasses import dataclass
 from datetime import date, timedelta
 from pathlib import Path
@@ -22,6 +23,7 @@ from backend.app.services.ingest.agmarknet.constants import (
     SOURCE_AGMARKNET,
 )
 from backend.app.services.ingest.agmarknet.expected_markets import (
+    load_backfill_ogd_states,
     load_expected_market_ids,
 )
 from backend.app.services.ingest.agmarknet.market_lookup import (
@@ -34,7 +36,8 @@ from backend.app.services.ingest.agmarknet.pipeline import (
 
 DEFAULT_BACKFILL_MONTHS = 36
 MIN_BACKFILL_MONTHS = 24
-TELANGANA_OGD_STATE = "Telangana"
+LIVE_BACKFILL_DAY_DELAY_SECONDS = 0.25
+
 
 @dataclass(frozen=True, slots=True)
 class BackfillWindow:
@@ -196,10 +199,10 @@ def iter_backfill_dates(window: BackfillWindow) -> list[date]:
     return days
 
 
-def base_ogd_filters(*, arrival_date: date) -> dict[str, str]:
-    """Telangana daily window filter for OGD pulls."""
+def base_ogd_filters(*, arrival_date: date, state: str) -> dict[str, str]:
+    """Per-state daily window filter for OGD pulls."""
     return {
-        "state": TELANGANA_OGD_STATE,
+        "state": state,
         "arrival_date": format_ogd_arrival_date(arrival_date),
     }
 
@@ -222,8 +225,11 @@ class FixtureReplayOgdClient:
         limit: int | None = None,  # noqa: ARG002
     ) -> list[dict[str, Any]]:
         arrival_raw = (filters or {}).get("arrival_date")
+        state_raw = (filters or {}).get("state")
         rows: list[dict[str, Any]] = []
         for record in self._records:
+            if state_raw and str(record.get("state", "")).strip() != state_raw:
+                continue
             row = dict(record)
             if arrival_raw:
                 row["arrival_date"] = arrival_raw
@@ -241,11 +247,15 @@ class AgmarknetBackfillPipeline:
         ogd_client: OgdAgmarknetClient | FixtureReplayOgdClient,
         seed_cotton: bool = True,
         write_quality_snapshot: bool = True,
+        expected_market_ids: tuple[str, ...] | None = None,
+        ogd_states: tuple[str, ...] | None = None,
     ) -> None:
         self._session = session
         self._ogd_client = ogd_client
         self._seed_cotton = seed_cotton
         self._write_quality_snapshot = write_quality_snapshot
+        self._expected_market_ids = expected_market_ids or load_expected_market_ids()
+        self._ogd_states = ogd_states or load_backfill_ogd_states()
         lookup = load_market_lookup_from_seed()
         self._pipeline = AgmarknetIngestPipeline(
             session,
@@ -278,15 +288,25 @@ class AgmarknetBackfillPipeline:
         prices_skipped = 0
         arrivals_skipped = 0
 
+        live_client = isinstance(self._ogd_client, OgdAgmarknetClient)
+        pull_index = 0
         for day in iter_backfill_dates(window):
-            chunk = self._ingest_day(day, commit=commit_per_day and not dry_run)
-            chunk_results.append(chunk)
-            ogd_rows_fetched += chunk.ogd_rows_fetched
-            total_inserted += chunk.total_inserted
-            prices_inserted += chunk.prices_inserted
-            arrivals_inserted += chunk.arrivals_inserted
-            prices_skipped += chunk.prices_skipped_duplicate
-            arrivals_skipped += chunk.arrivals_skipped_duplicate
+            for state in self._ogd_states:
+                if live_client and pull_index > 0 and not dry_run:
+                    time.sleep(LIVE_BACKFILL_DAY_DELAY_SECONDS)
+                chunk = self._ingest_day(
+                    day,
+                    state=state,
+                    commit=commit_per_day and not dry_run,
+                )
+                pull_index += 1
+                chunk_results.append(chunk)
+                ogd_rows_fetched += chunk.ogd_rows_fetched
+                total_inserted += chunk.total_inserted
+                prices_inserted += chunk.prices_inserted
+                arrivals_inserted += chunk.arrivals_inserted
+                prices_skipped += chunk.prices_skipped_duplicate
+                arrivals_skipped += chunk.arrivals_skipped_duplicate
             if not dry_run and commit_per_day:
                 self._session.commit()
             elif dry_run:
@@ -300,7 +320,9 @@ class AgmarknetBackfillPipeline:
             DataQualitySnapshotService(self._session).record_after_agmarknet_backfill(
                 window_start=window.start,
                 window_end=window.end,
+                expected_market_ids=self._expected_market_ids,
             )
+            self._session.commit()
 
         return AgmarknetBackfillResult(
             window=window,
@@ -316,8 +338,10 @@ class AgmarknetBackfillPipeline:
             chunk_results=tuple(chunk_results),
         )
 
-    def _ingest_day(self, day: date, *, commit: bool) -> AgmarknetBackfillChunkResult:
-        filters = base_ogd_filters(arrival_date=day)
+    def _ingest_day(
+        self, day: date, *, state: str, commit: bool
+    ) -> AgmarknetBackfillChunkResult:
+        filters = base_ogd_filters(arrival_date=day, state=state)
         if self._fixture_client is not None:
             raw_rows = self._fixture_client.fetch_all(filters=filters)
             payload = {"records": raw_rows}
@@ -440,9 +464,9 @@ def render_backfill_report_markdown(
         "# Historical Agmarknet Backfill Report — PI6 Track B",
         "",
         "**Date:** 2026-06-04",
-        "**PI:** PI6 Track B (KDO — Telangana cotton mandi historical backfill)",
+        "**PI:** PI7 Track A (KDO — cotton belt Agmarknet historical backfill)",
         "**Status:** Backfill framework complete — production pipeline + date-window OGD",
-        "**Seed:** E-02 `cotton.json` (4 Telangana mandis with `source_identifiers.agmarknet`)",
+        "**Seed:** E-02 `cotton.json` (Agmarknet markets via `source_identifiers.agmarknet`)",
         "",
         "---",
         "",

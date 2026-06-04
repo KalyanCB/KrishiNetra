@@ -110,12 +110,59 @@
       }
     },
     {
+      "region_id": "reg_tg_nizamabad",
+      "name": "Nizamabad",
+      "type": "mandi",
+      "parent_region_id": "reg_tg_state",
+      "external_refs": {
+        "agmarknet_district": "Nizamabad",
+        "weather_district": "Nizamabad"
+      }
+    },
+    {
+      "region_id": "reg_tg_adilabad",
+      "name": "Adilabad",
+      "type": "mandi",
+      "parent_region_id": "reg_tg_state",
+      "external_refs": {
+        "agmarknet_district": "Adilabad"
+      }
+    },
+    {
       "region_id": "reg_tg_nalgonda",
       "name": "Nalgonda",
       "type": "mandi",
       "parent_region_id": "reg_tg_state",
       "external_refs": {
+        "agmarknet_district": "Nalgonda",
         "weather_district": "Nalgonda"
+      }
+    },
+    {
+      "region_id": "reg_tg_jagtial",
+      "name": "Jagtial",
+      "type": "mandi",
+      "parent_region_id": "reg_tg_state",
+      "external_refs": {
+        "agmarknet_district": "Jagtial"
+      }
+    },
+    {
+      "region_id": "reg_tg_mancherial",
+      "name": "Mancherial",
+      "type": "mandi",
+      "parent_region_id": "reg_tg_state",
+      "external_refs": {
+        "agmarknet_district": "Mancherial"
+      }
+    },
+    {
+      "region_id": "reg_tg_peddapalli",
+      "name": "Peddapalli",
+      "type": "mandi",
+      "parent_region_id": "reg_tg_state",
+      "external_refs": {
+        "agmarknet_district": "Peddapalli"
       }
     },
     {
@@ -125,6 +172,195 @@
       "parent_region_id": "reg_tg_state",
       "external_refs": {
         "weather_district": "Mahabubabad"
+      }
+    },
+    {
+      "region_id": "reg_mh_state",
+      "name": "Maharashtra",
+      "type": "state",
+      "parent_region_id": null,
+      "external_refs": {
+        "agmarknet_state": "Maharashtra"
+      }
+    },
+    {
+      "region_id": "reg_mh_amravati",
+      "name": "Amravati",
+      "type": "mandi",
+      "parent_region_id": "reg_mh_state",
+      "external_refs": {
+        "agmarknet_district": "Amravati"
+      }
+    },
+    {
+      "region_id": "reg_mh_akola",
+      "name": "Akola",
+      "type": "mandi",
+      "parent_region_id": "reg_mh_state",
+      "external_refs": {
+        "agmarknet_district": "Akola"
+      }
+    },
+    {
+      "region_id": "reg_mh_yavatmal",
+      "name": "Yavatmal",
+      "type": "mandi",
+      "parent_region_id": "reg_mh_state",
+      "external_refs": {
+        "agmarknet_district": "Yavatmal"
+      }
+    },
+    {
+      "region_id": "reg_mh_wardha",
+      "name": "Wardha",
+      "type": "mandi",
+      "parent_region_id": "reg_mh_state",
+      "external_refs": {
+        "agmarknet_district": "Wardha"
+      }
+    },
+    {
+      "region_id": "reg_mh_jalgaon",
+      "name": "Jalgaon",
+      "type": "mandi",
+      "parent_region_id": "reg_mh_state",
+      "external_refs": {
+        "agmarknet_district": "Jalgaon"
+      }
+    },
+    {
+      "region_id": "reg_mh_nagpur",
+      "name": "Nagpur",
+      "type": "mandi",
+      "parent_region_id": "reg_mh_state",
+      "external_refs": {
+        "agmarknet_district": "Nagpur"
+      }
+    },
+    {
+      "region_id": "reg_mh_parbhani",
+      "name": "Parbhani",
+      "type": "mandi",
+      "parent_region_id": "reg_mh_state",
+      "external_refs": {
+        "agmarknet_district": "Parbhani"
+      }
+    },
+    {
+      "region_id": "reg_mh_latur",
+      "name": "Latur",
+      "type": "mandi",
+      "parent_region_id": "reg_mh_state",
+      "external_refs": {
+        "agmarknet_district": "Latur"
+      }
+    },
+    {
+      "region_id": "reg_gj_state",
+      "name": "Gujarat",
+      "type": "state",
+      "parent_region_id": null,
+      "external_refs": {
+        "agmarknet_state": "Gujarat"
+      }
+    },
+    {
+      "region_id": "reg_gj_rajkot",
+      "name": "Rajkot",
+      "type": "mandi",
+      "parent_region_id": "reg_gj_state",
+      "external_refs": {
+        "agmarknet_district": "Rajkot"
+      }
+    },
+    {
+      "region_id": "reg_gj_bhavnagar",
+      "name": "Bhavnagar",
+      "type": "mandi",
+      "parent_region_id": "reg_gj_state",
+      "external_refs": {
+        "agmarknet_district": "Bhavnagar"
+      }
+    },
+    {
+      "region_id": "reg_gj_surendranagar",
+      "name": "Surendranagar",
+      "type": "mandi",
+      "parent_region_id": "reg_gj_state",
+      "external_refs": {
+        "agmarknet_district": "Surendranagar"
+      }
+    },
+    {
+      "region_id": "reg_gj_patan",
+      "name": "Patan",
+      "type": "mandi",
+      "parent_region_id": "reg_gj_state",
+      "external_refs": {
+        "agmarknet_district": "Patan"
+      }
+    },
+    {
+      "region_id": "reg_ap_state",
+      "name": "Andhra Pradesh",
+      "type": "state",
+      "parent_region_id": null,
+      "external_refs": {
+        "agmarknet_state": "Andhra Pradesh"
+      }
+    },
+    {
+      "region_id": "reg_ap_guntur",
+      "name": "Guntur",
+      "type": "mandi",
+      "parent_region_id": "reg_ap_state",
+      "external_refs": {
+        "agmarknet_district": "Guntur"
+      }
+    },
+    {
+      "region_id": "reg_ap_adoni",
+      "name": "Adoni",
+      "type": "mandi",
+      "parent_region_id": "reg_ap_state",
+      "external_refs": {
+        "agmarknet_district": "Kurnool"
+      }
+    },
+    {
+      "region_id": "reg_ap_nandyal",
+      "name": "Nandyal",
+      "type": "mandi",
+      "parent_region_id": "reg_ap_state",
+      "external_refs": {
+        "agmarknet_district": "Kurnool"
+      }
+    },
+    {
+      "region_id": "reg_ka_state",
+      "name": "Karnataka",
+      "type": "state",
+      "parent_region_id": null,
+      "external_refs": {
+        "agmarknet_state": "Karnataka"
+      }
+    },
+    {
+      "region_id": "reg_ka_raichur",
+      "name": "Raichur",
+      "type": "mandi",
+      "parent_region_id": "reg_ka_state",
+      "external_refs": {
+        "agmarknet_district": "Raichur"
+      }
+    },
+    {
+      "region_id": "reg_ka_gulbarga",
+      "name": "Gulbarga",
+      "type": "mandi",
+      "parent_region_id": "reg_ka_state",
+      "external_refs": {
+        "agmarknet_district": "Gulbarga"
       }
     }
   ],
@@ -178,6 +414,305 @@
           "state": "Telangana",
           "district": "Khammam",
           "market": "Kesamudram"
+        }
+      }
+    },
+    {
+      "market_id": "mkt_tg_nizamabad",
+      "region_id": "reg_tg_nizamabad",
+      "market_type": "mandi",
+      "name": "Nizamabad",
+      "source_identifiers": {
+        "agmarknet": {
+          "state": "Telangana",
+          "district": "Nizamabad",
+          "market": "Nizamabad"
+        }
+      }
+    },
+    {
+      "market_id": "mkt_tg_adilabad",
+      "region_id": "reg_tg_adilabad",
+      "market_type": "mandi",
+      "name": "Adilabad",
+      "source_identifiers": {
+        "agmarknet": {
+          "state": "Telangana",
+          "district": "Adilabad",
+          "market": "Adilabad"
+        }
+      }
+    },
+    {
+      "market_id": "mkt_tg_nalgonda",
+      "region_id": "reg_tg_nalgonda",
+      "market_type": "mandi",
+      "name": "Nalgonda",
+      "source_identifiers": {
+        "agmarknet": {
+          "state": "Telangana",
+          "district": "Nalgonda",
+          "market": "Nalgonda"
+        }
+      }
+    },
+    {
+      "market_id": "mkt_tg_jagtial",
+      "region_id": "reg_tg_jagtial",
+      "market_type": "mandi",
+      "name": "Jagtial",
+      "source_identifiers": {
+        "agmarknet": {
+          "state": "Telangana",
+          "district": "Jagtial",
+          "market": "Jagtial"
+        }
+      }
+    },
+    {
+      "market_id": "mkt_tg_mancherial",
+      "region_id": "reg_tg_mancherial",
+      "market_type": "mandi",
+      "name": "Mancherial",
+      "source_identifiers": {
+        "agmarknet": {
+          "state": "Telangana",
+          "district": "Mancherial",
+          "market": "Mancherial"
+        }
+      }
+    },
+    {
+      "market_id": "mkt_tg_peddapalli",
+      "region_id": "reg_tg_peddapalli",
+      "market_type": "mandi",
+      "name": "Peddapalli",
+      "source_identifiers": {
+        "agmarknet": {
+          "state": "Telangana",
+          "district": "Peddapalli",
+          "market": "Peddapalli"
+        }
+      }
+    },
+    {
+      "market_id": "mkt_mh_amravati",
+      "region_id": "reg_mh_amravati",
+      "market_type": "mandi",
+      "name": "Amravati",
+      "source_identifiers": {
+        "agmarknet": {
+          "state": "Maharashtra",
+          "district": "Amravati",
+          "market": "Amravati"
+        }
+      }
+    },
+    {
+      "market_id": "mkt_mh_akola",
+      "region_id": "reg_mh_akola",
+      "market_type": "mandi",
+      "name": "Akola",
+      "source_identifiers": {
+        "agmarknet": {
+          "state": "Maharashtra",
+          "district": "Akola",
+          "market": "Akola"
+        }
+      }
+    },
+    {
+      "market_id": "mkt_mh_yavatmal",
+      "region_id": "reg_mh_yavatmal",
+      "market_type": "mandi",
+      "name": "Yavatmal",
+      "source_identifiers": {
+        "agmarknet": {
+          "state": "Maharashtra",
+          "district": "Yavatmal",
+          "market": "Yavatmal"
+        }
+      }
+    },
+    {
+      "market_id": "mkt_mh_wardha",
+      "region_id": "reg_mh_wardha",
+      "market_type": "mandi",
+      "name": "Wardha",
+      "source_identifiers": {
+        "agmarknet": {
+          "state": "Maharashtra",
+          "district": "Wardha",
+          "market": "Wardha"
+        }
+      }
+    },
+    {
+      "market_id": "mkt_mh_jalgaon",
+      "region_id": "reg_mh_jalgaon",
+      "market_type": "mandi",
+      "name": "Jalgaon",
+      "source_identifiers": {
+        "agmarknet": {
+          "state": "Maharashtra",
+          "district": "Jalgaon",
+          "market": "Jalgaon"
+        }
+      }
+    },
+    {
+      "market_id": "mkt_mh_nagpur",
+      "region_id": "reg_mh_nagpur",
+      "market_type": "mandi",
+      "name": "Nagpur",
+      "source_identifiers": {
+        "agmarknet": {
+          "state": "Maharashtra",
+          "district": "Nagpur",
+          "market": "Nagpur"
+        }
+      }
+    },
+    {
+      "market_id": "mkt_mh_parbhani",
+      "region_id": "reg_mh_parbhani",
+      "market_type": "mandi",
+      "name": "Parbhani",
+      "source_identifiers": {
+        "agmarknet": {
+          "state": "Maharashtra",
+          "district": "Parbhani",
+          "market": "Parbhani"
+        }
+      }
+    },
+    {
+      "market_id": "mkt_mh_latur",
+      "region_id": "reg_mh_latur",
+      "market_type": "mandi",
+      "name": "Latur",
+      "source_identifiers": {
+        "agmarknet": {
+          "state": "Maharashtra",
+          "district": "Latur",
+          "market": "Latur"
+        }
+      }
+    },
+    {
+      "market_id": "mkt_gj_rajkot",
+      "region_id": "reg_gj_rajkot",
+      "market_type": "mandi",
+      "name": "Rajkot",
+      "source_identifiers": {
+        "agmarknet": {
+          "state": "Gujarat",
+          "district": "Rajkot",
+          "market": "Rajkot"
+        }
+      }
+    },
+    {
+      "market_id": "mkt_gj_bhavnagar",
+      "region_id": "reg_gj_bhavnagar",
+      "market_type": "mandi",
+      "name": "Bhavnagar",
+      "source_identifiers": {
+        "agmarknet": {
+          "state": "Gujarat",
+          "district": "Bhavnagar",
+          "market": "Bhavnagar"
+        }
+      }
+    },
+    {
+      "market_id": "mkt_gj_surendranagar",
+      "region_id": "reg_gj_surendranagar",
+      "market_type": "mandi",
+      "name": "Surendranagar",
+      "source_identifiers": {
+        "agmarknet": {
+          "state": "Gujarat",
+          "district": "Surendranagar",
+          "market": "Surendranagar"
+        }
+      }
+    },
+    {
+      "market_id": "mkt_gj_patan",
+      "region_id": "reg_gj_patan",
+      "market_type": "mandi",
+      "name": "Patan",
+      "source_identifiers": {
+        "agmarknet": {
+          "state": "Gujarat",
+          "district": "Patan",
+          "market": "Patan"
+        }
+      }
+    },
+    {
+      "market_id": "mkt_ap_guntur",
+      "region_id": "reg_ap_guntur",
+      "market_type": "mandi",
+      "name": "Guntur",
+      "source_identifiers": {
+        "agmarknet": {
+          "state": "Andhra Pradesh",
+          "district": "Guntur",
+          "market": "Guntur"
+        }
+      }
+    },
+    {
+      "market_id": "mkt_ap_adoni",
+      "region_id": "reg_ap_adoni",
+      "market_type": "mandi",
+      "name": "Adoni",
+      "source_identifiers": {
+        "agmarknet": {
+          "state": "Andhra Pradesh",
+          "district": "Kurnool",
+          "market": "Adoni"
+        }
+      }
+    },
+    {
+      "market_id": "mkt_ap_nandyal",
+      "region_id": "reg_ap_nandyal",
+      "market_type": "mandi",
+      "name": "Nandyal",
+      "source_identifiers": {
+        "agmarknet": {
+          "state": "Andhra Pradesh",
+          "district": "Kurnool",
+          "market": "Nandyal"
+        }
+      }
+    },
+    {
+      "market_id": "mkt_ka_raichur",
+      "region_id": "reg_ka_raichur",
+      "market_type": "mandi",
+      "name": "Raichur",
+      "source_identifiers": {
+        "agmarknet": {
+          "state": "Karnataka",
+          "district": "Raichur",
+          "market": "Raichur"
+        }
+      }
+    },
+    {
+      "market_id": "mkt_ka_gulbarga",
+      "region_id": "reg_ka_gulbarga",
+      "market_type": "mandi",
+      "name": "Gulbarga",
+      "source_identifiers": {
+        "agmarknet": {
+          "state": "Karnataka",
+          "district": "Gulbarga",
+          "market": "Gulbarga"
         }
       }
     }
