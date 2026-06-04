@@ -35,7 +35,7 @@ DEFAULT_FIXTURE = (
     / "tests"
     / "fixtures"
     / "agmarknet"
-    / "ogd_telangana_sample.json"
+    / "ogd_cotton_belt_sample.json"
 )
 COTTON_COMMODITY_ID = "cotton"
 SOURCE_AGMARKNET = "agmarknet"

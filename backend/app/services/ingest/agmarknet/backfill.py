@@ -566,7 +566,7 @@ def render_backfill_report_markdown(
             "",
             "- Deterministic date iteration (`iter_backfill_dates`).",
             "- Business-key dedupe via production `AgmarknetIngestPipeline`.",
-            "- CI: `--fixture` replays `tests/fixtures/agmarknet/ogd_telangana_sample.json`.",
+            "- CI: `--fixture` replays `tests/fixtures/agmarknet/ogd_cotton_belt_sample.json`.",
             "- Live: `OGD_API_KEY` + `--start-date` / `--end-date` (DD/MM/YYYY filters per day).",
             "",
         ]

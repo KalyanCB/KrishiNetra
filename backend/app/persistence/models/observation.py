@@ -19,12 +19,17 @@ OBSERVATION_RETENTION_YEARS = 7
 
 
 class ObservationValidationStatus(StrEnum):
-    """Append-only observation lifecycle (E-01-S04 AC-5)."""
+    """Append-only observation lifecycle (E-01-S04 AC-5, PI8 Track A)."""
 
-    RECEIVED = "received"
+    RECEIVED = "received"  # draft / pending QA
     VALIDATED = "validated"
     PUBLISHED = "published"
     SUPERSEDED = "superseded"
+    REJECTED = "rejected"
+
+
+# Alias for PI8 workflow docs: received == draft pending validation.
+DRAFT_VALIDATION_STATUS = ObservationValidationStatus.RECEIVED
 
 
 _validation_status_enum = PGEnum(

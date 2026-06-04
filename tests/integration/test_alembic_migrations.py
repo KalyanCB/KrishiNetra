@@ -42,7 +42,7 @@ def test_alembic_upgrade_head(migrated_database: str, alembic_config: Config) ->
     with engine.connect() as conn:
         assert (
             conn.execute(text("SELECT version_num FROM alembic_version")).scalar()
-            == "0010_partition_backfill"
+            == "0011_observation_rejected"
         )
     engine.dispose()
 
@@ -52,7 +52,7 @@ def test_alembic_upgrade_head(migrated_database: str, alembic_config: Config) ->
     reason="DATABASE_URL required",
 )
 def test_alembic_downgrade_one_revision(alembic_config: Config) -> None:
-    """Reversible migrations: downgrade one step from head (0010 -> 0009)."""
+    """Reversible migrations: downgrade one step from head (0011 -> 0010)."""
     command.upgrade(alembic_config, "head")
     command.downgrade(alembic_config, "-1")
     db_url = os.environ["DATABASE_URL"]
@@ -60,7 +60,7 @@ def test_alembic_downgrade_one_revision(alembic_config: Config) -> None:
     inspector = inspect(engine)
     tables = set(inspector.get_table_names())
     assert "weather_observation" in tables
-    assert "price_observation_2023_06" not in tables
+    assert "price_observation_2023_06" in tables
     assert "user_context" in tables
     assert "decision_session" in tables
     assert "recommendation" in tables
@@ -74,7 +74,7 @@ def test_alembic_downgrade_one_revision(alembic_config: Config) -> None:
     with engine.connect() as conn:
         assert (
             conn.execute(text("SELECT version_num FROM alembic_version")).scalar()
-            == "0009_weather_observations"
+            == "0010_partition_backfill"
         )
     command.upgrade(alembic_config, "head")
     engine.dispose()

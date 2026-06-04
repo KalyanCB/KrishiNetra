@@ -27,11 +27,17 @@ from backend.app.services.ingest.agmarknet.expected_markets import (
     load_telangana_primary_market_ids,
 )
 
-FIXTURE_PATH = (
+TELANGANA_FIXTURE_PATH = (
     Path(__file__).resolve().parents[1]
     / "fixtures"
     / "agmarknet"
     / "ogd_telangana_sample.json"
+)
+BELT_FIXTURE_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "fixtures"
+    / "agmarknet"
+    / "ogd_cotton_belt_sample.json"
 )
 
 
@@ -82,14 +88,14 @@ def test_iter_backfill_dates_deterministic() -> None:
 
 
 def test_fixture_replay_client_stamps_arrival_date() -> None:
-    client = FixtureReplayOgdClient(FIXTURE_PATH)
+    client = FixtureReplayOgdClient(TELANGANA_FIXTURE_PATH)
     rows = client.fetch_all(filters={"arrival_date": "01/06/2026"})
     assert rows
     assert all(r["arrival_date"] == "01/06/2026" for r in rows)
 
 
 def test_fixture_replay_client_filters_by_state() -> None:
-    client = FixtureReplayOgdClient(FIXTURE_PATH)
+    client = FixtureReplayOgdClient(TELANGANA_FIXTURE_PATH)
     tg = client.fetch_all(
         filters={"state": "Telangana", "arrival_date": "01/06/2026"}
     )
@@ -98,6 +104,41 @@ def test_fixture_replay_client_filters_by_state() -> None:
     )
     assert len(tg) == 4
     assert mh == []
+
+
+def test_belt_fixture_replay_filters_multi_state() -> None:
+    client = FixtureReplayOgdClient(BELT_FIXTURE_PATH)
+    tg = client.fetch_all(
+        filters={"state": "Telangana", "arrival_date": "01/06/2026"}
+    )
+    mh = client.fetch_all(
+        filters={"state": "Maharashtra", "arrival_date": "01/06/2026"}
+    )
+    gj = client.fetch_all(
+        filters={"state": "Gujarat", "arrival_date": "01/06/2026"}
+    )
+    assert len(tg) == 6
+    assert len(mh) == 5
+    assert len(gj) == 3
+
+
+def test_belt_fixture_resolves_at_least_twelve_markets() -> None:
+    from backend.app.services.ingest.agmarknet.mapper import AgmarknetMapper
+    from backend.app.services.ingest.agmarknet.market_lookup import (
+        load_market_lookup_from_seed,
+    )
+    from backend.app.services.ingest.agmarknet.parser import parse_ogd_response
+
+    client = FixtureReplayOgdClient(BELT_FIXTURE_PATH)
+    raw = client.fetch_all(filters={"arrival_date": "04/06/2026"})
+    records = parse_ogd_response({"records": raw})
+    mapper = AgmarknetMapper(load_market_lookup_from_seed())
+    market_ids: set[str] = set()
+    for record in records:
+        prices, _ = mapper.map_record(record)
+        for price in prices:
+            market_ids.add(price.market_id)
+    assert len(market_ids) >= 12
 
 
 def test_find_missing_periods_detects_gap() -> None:
@@ -117,7 +158,7 @@ def test_backfill_pipeline_fixture_dry_run_three_days() -> None:
     session = MagicMock()
     session.execute.return_value.all.return_value = []
 
-    client = FixtureReplayOgdClient(FIXTURE_PATH)
+    client = FixtureReplayOgdClient(BELT_FIXTURE_PATH)
     pipeline = AgmarknetBackfillPipeline(
         session,
         ogd_client=client,
@@ -127,9 +168,23 @@ def test_backfill_pipeline_fixture_dry_run_three_days() -> None:
     window = BackfillWindow(start=date(2026, 6, 1), end=date(2026, 6, 3))
     result = pipeline.run(window, dry_run=True)
 
-    assert result.days_fetched == 3 * len(load_backfill_ogd_states())
+    states = load_backfill_ogd_states()
+    expected_rows = sum(
+        len(
+            client.fetch_all(
+                filters={
+                    "state": state,
+                    "arrival_date": format_ogd_arrival_date(day),
+                }
+            )
+        )
+        for day in iter_backfill_dates(window)
+        for state in states
+    )
+
+    assert result.days_fetched == 3 * len(states)
     assert result.dry_run is True
-    assert result.ogd_rows_fetched == 4 * 3
+    assert result.ogd_rows_fetched == expected_rows
     session.rollback.assert_called()
 
 
@@ -188,7 +243,7 @@ def test_backfill_fixture_integration(migrated_database: str) -> None:
             session.commit()
 
         with Session(engine) as session:
-            client = FixtureReplayOgdClient(FIXTURE_PATH)
+            client = FixtureReplayOgdClient(BELT_FIXTURE_PATH)
             pipeline = AgmarknetBackfillPipeline(session, ogd_client=client)
             first = pipeline.run(window, dry_run=False)
             session.commit()

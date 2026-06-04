@@ -47,7 +47,7 @@ DEFAULT_FIXTURE = (
     / "tests"
     / "fixtures"
     / "agmarknet"
-    / "ogd_telangana_sample.json"
+    / "ogd_cotton_belt_sample.json"
 )
 DEFAULT_REPORT = (
     Path(__file__).resolve().parents[1]
@@ -80,7 +80,7 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--fixture",
         action="store_true",
-        help="Replay tests/fixtures/agmarknet/ogd_telangana_sample.json per day",
+        help="Replay tests/fixtures/agmarknet/ogd_cotton_belt_sample.json per day",
     )
     parser.add_argument("--fixture-path", type=Path, default=None)
     parser.add_argument(

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import date
 from decimal import Decimal
+from pathlib import Path
 
 import pytest
 from sqlalchemy import create_engine, func, select
@@ -25,12 +26,19 @@ from backend.app.spike.agmarknet.population import (
 
 pytestmark = pytest.mark.integration
 
+TELANGANA_FIXTURE = (
+    Path(__file__).resolve().parents[1]
+    / "fixtures"
+    / "agmarknet"
+    / "ogd_telangana_sample.json"
+)
+
 EXPECTED_DRAFT_PRICES = 7
 EXPECTED_DRAFT_ARRIVALS = 1
 
 
 def test_fixture_maps_cotton_telangana_drafts() -> None:
-    ogd_count, prices, arrivals = load_fixture_drafts()
+    ogd_count, prices, arrivals = load_fixture_drafts(TELANGANA_FIXTURE)
     assert ogd_count == 4
     assert len(prices) == EXPECTED_DRAFT_PRICES
     assert len(arrivals) == EXPECTED_DRAFT_ARRIVALS
@@ -51,7 +59,7 @@ def test_observation_population_proof(migrated_database: str) -> None:
             before = count_cotton_agmarknet(session)
             assert before.total == 0
 
-            result = run_population_proof(session)
+            result = run_population_proof(session, fixture_path=TELANGANA_FIXTURE)
             assert result.fk_valid is True
             assert result.inserted.price == EXPECTED_DRAFT_PRICES
             assert result.inserted.arrival == EXPECTED_DRAFT_ARRIVALS
@@ -84,7 +92,7 @@ def test_observation_population_proof(migrated_database: str) -> None:
                 assert session.get(MarketModel, market_id) is not None
 
             # Append-only: second run adds rows (no business-key dedupe).
-            second = run_population_proof(session, apply_seed=False)
+            second = run_population_proof(session, fixture_path=TELANGANA_FIXTURE, apply_seed=False)
             assert second.after.price == result.after.price + EXPECTED_DRAFT_PRICES
 
             agmarknet_price_count = session.scalar(

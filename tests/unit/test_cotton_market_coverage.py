@@ -3,18 +3,22 @@
 from __future__ import annotations
 
 import re
+from pathlib import Path
 
 import pytest
 
 from backend.app.persistence.seeds.runner import load_fixture
+from backend.app.services.ingest.agmarknet.backfill import FixtureReplayOgdClient
 from backend.app.services.ingest.agmarknet.expected_markets import (
     load_expected_market_ids,
 )
+from backend.app.services.ingest.agmarknet.mapper import AgmarknetMapper
 from backend.app.services.ingest.agmarknet.market_lookup import (
     AgmarknetMarketKey,
     AgmarknetMarketLookup,
     load_market_lookup_from_seed,
 )
+from backend.app.services.ingest.agmarknet.parser import parse_ogd_response
 
 _MIN_COTTON_MARKETS = 20
 _MARKET_ID_PATTERN = re.compile(r"^mkt_[a-z]{2}_[a-z0-9_]+$")
@@ -102,3 +106,22 @@ def test_from_markets_seed_builds_lookup() -> None:
         state="Maharashtra", district="Yavatmal", market="Yavatmal"
     )
     assert lookup._entries[key] == "mkt_mh_yavatmal"
+
+
+def test_belt_fixture_maps_twelve_plus_distinct_market_ids() -> None:
+    belt_path = (
+        Path(__file__).resolve().parents[1]
+        / "fixtures"
+        / "agmarknet"
+        / "ogd_cotton_belt_sample.json"
+    )
+    client = FixtureReplayOgdClient(belt_path)
+    raw = client.fetch_all(filters={"arrival_date": "04/06/2026"})
+    records = parse_ogd_response({"records": raw})
+    mapper = AgmarknetMapper(load_market_lookup_from_seed())
+    market_ids: set[str] = set()
+    for record in records:
+        prices, _ = mapper.map_record(record)
+        for price in prices:
+            market_ids.add(price.market_id)
+    assert len(market_ids) >= 12
