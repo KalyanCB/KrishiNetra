@@ -18,8 +18,10 @@ def validate_quality_score(score: Decimal | float) -> None:
         )
 
 
-def validate_confidence_penalty(factor: Decimal | float) -> None:
+def validate_confidence_penalty(factor: Decimal | float | None) -> None:
     """confidence_penalty_factor must be in [0, 1]."""
+    if factor is None:
+        return
     value = float(factor)
     if value < 0.0 or value > 1.0:
         raise QualityValidationError(

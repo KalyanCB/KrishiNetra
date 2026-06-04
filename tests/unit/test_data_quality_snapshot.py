@@ -128,7 +128,7 @@ def test_quality_snapshot_unique_per_day(migrated_database: str) -> None:
             futures_feed_ok=True,
         )
         repo.insert_snapshot(first)
-        session.flush()
+        session.commit()
 
         duplicate = DataQualitySnapshotModel(
             quality_snapshot_id=uuid4(),

@@ -9,7 +9,7 @@ from uuid import UUID
 from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Index, Numeric, String, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
 from backend.app.persistence.database import Base
 
@@ -61,10 +61,4 @@ class DataQualitySnapshotModel(Base):
         DateTime(timezone=True),
         server_default=func.now(),
         nullable=False,
-    )
-
-    commodity: Mapped[object] = relationship()
-    commodity_registry: Mapped[object] = relationship(
-        "CommodityRegistryModel",
-        foreign_keys=[registry_id],
     )

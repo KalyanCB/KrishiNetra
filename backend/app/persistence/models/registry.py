@@ -8,7 +8,7 @@ from uuid import UUID
 from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Index, String, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
 from backend.app.persistence.database import Base
 
@@ -62,5 +62,3 @@ class CommodityRegistryModel(Base):
         server_default=func.now(),
         nullable=False,
     )
-
-    commodity: Mapped[object] = relationship()

@@ -151,8 +151,6 @@ def test_price_observation_invalid_market_fk(migrated_database: str) -> None:
         with pytest.raises(IntegrityError):
             session.commit()
         session.rollback()
-        session.delete(commodity)
-        session.commit()
     engine.dispose()
 
 

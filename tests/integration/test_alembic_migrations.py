@@ -13,7 +13,7 @@ pytestmark = pytest.mark.integration
 
 
 def test_alembic_upgrade_head(migrated_database: str, alembic_config: Config) -> None:
-    """Head revision applied; reference tables exist; bootstrap left no early tables."""
+    """Head revision applied; full E-01 Phase 4 schema present."""
     engine = create_engine(migrated_database, pool_pre_ping=True)
     inspector = inspect(engine)
     tables = set(inspector.get_table_names())
@@ -22,12 +22,21 @@ def test_alembic_upgrade_head(migrated_database: str, alembic_config: Config) ->
     assert "commodity_profile" in tables
     assert "region" in tables
     assert "market" in tables
-    assert "price_observation" not in tables
+    assert "commodity_registry" in tables
+    assert "data_quality_snapshot" in tables
+    assert "price_observation" in tables
+    assert "arrival_observation" in tables
+    assert "structured_signal" in tables
+    assert "signal_snapshot" in tables
+    assert "forecast" in tables
+    assert "forecast_version" in tables
+    assert "feature_set" in tables
+    assert "feature_vector" in tables
 
     with engine.connect() as conn:
         assert (
             conn.execute(text("SELECT version_num FROM alembic_version")).scalar()
-            == "0002_reference_entities"
+            == "0007_forecast_and_features"
         )
     engine.dispose()
 
@@ -37,11 +46,16 @@ def test_alembic_upgrade_head(migrated_database: str, alembic_config: Config) ->
     reason="DATABASE_URL required",
 )
 def test_alembic_downgrade_one_revision(alembic_config: Config) -> None:
-    """Reversible migrations: downgrade 0002 removes reference tables."""
-    command.downgrade(alembic_config, "0001_alembic_bootstrap")
+    """Reversible migrations: downgrade one step from head."""
+    command.downgrade(alembic_config, "-1")
     db_url = os.environ["DATABASE_URL"]
     engine = create_engine(db_url, pool_pre_ping=True)
     inspector = inspect(engine)
-    assert "commodity" not in inspector.get_table_names()
+    tables = set(inspector.get_table_names())
+    assert "forecast_version" not in tables
+    assert "forecast" not in tables
+    assert "structured_signal" in tables
+    assert "signal_snapshot" in tables
+    assert "commodity" in tables
     command.upgrade(alembic_config, "head")
     engine.dispose()

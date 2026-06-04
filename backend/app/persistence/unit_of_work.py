@@ -7,6 +7,12 @@ from types import TracebackType
 from sqlalchemy.orm import Session
 
 from backend.app.persistence.database import SessionLocal
+from backend.app.persistence.repositories.forecast import (
+    FeatureSetRepository,
+    FeatureVectorRepository,
+    ForecastRepository,
+    ForecastVersionRepository,
+)
 from backend.app.persistence.repositories.observation import (
     ArrivalObservationRepository,
     PriceObservationRepository,
@@ -14,6 +20,10 @@ from backend.app.persistence.repositories.observation import (
 from backend.app.persistence.repositories.quality import DataQualitySnapshotRepository
 from backend.app.persistence.repositories.reference import CommodityRepository
 from backend.app.persistence.repositories.registry import CommodityRegistryRepository
+from backend.app.persistence.repositories.signal import (
+    SignalSnapshotRepository,
+    StructuredSignalRepository,
+)
 
 
 class UnitOfWork:
@@ -27,6 +37,12 @@ class UnitOfWork:
         self.quality_snapshots = DataQualitySnapshotRepository(self.session)
         self.price_observations = PriceObservationRepository(self.session)
         self.arrival_observations = ArrivalObservationRepository(self.session)
+        self.structured_signals = StructuredSignalRepository(self.session)
+        self.signal_snapshots = SignalSnapshotRepository(self.session)
+        self.forecasts = ForecastRepository(self.session)
+        self.forecast_versions = ForecastVersionRepository(self.session)
+        self.feature_sets = FeatureSetRepository(self.session)
+        self.feature_vectors = FeatureVectorRepository(self.session)
 
     def __enter__(self) -> UnitOfWork:
         return self

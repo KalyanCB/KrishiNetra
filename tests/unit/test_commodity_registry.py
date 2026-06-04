@@ -92,6 +92,7 @@ def test_single_active_registry(migrated_database: str) -> None:
         first = _registry_row(commodity_id="reg_active_test", version="1.0.0")
         first.is_active = True
         repo.insert_version(first)
+        session.commit()
 
         second = _registry_row(commodity_id="reg_active_test", version="1.1.0")
         second.is_active = True
@@ -100,7 +101,8 @@ def test_single_active_registry(migrated_database: str) -> None:
             session.commit()
         session.rollback()
 
-        session.delete(session.get(CommodityModel, "reg_active_test"))
+        session.delete(first)
+        session.delete(commodity)
         session.commit()
     engine.dispose()
 

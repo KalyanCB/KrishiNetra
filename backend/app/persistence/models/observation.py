@@ -10,7 +10,7 @@ from uuid import UUID
 from sqlalchemy import Date, DateTime, ForeignKey, Index, Numeric, String, func
 from sqlalchemy.dialects.postgresql import ENUM as PGEnum
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
 from backend.app.persistence.database import Base
 
@@ -80,9 +80,6 @@ class PriceObservationModel(Base):
         default=ObservationValidationStatus.RECEIVED.value,
     )
 
-    market: Mapped[object] = relationship()
-    commodity: Mapped[object] = relationship()
-
 
 class ArrivalObservationModel(Base):
     """Append-only arrival volume facts (TDS-006 §3.7)."""
@@ -124,6 +121,3 @@ class ArrivalObservationModel(Base):
         nullable=False,
         default=ObservationValidationStatus.RECEIVED.value,
     )
-
-    market: Mapped[object] = relationship()
-    commodity: Mapped[object] = relationship()

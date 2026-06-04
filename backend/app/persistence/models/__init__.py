@@ -1,5 +1,12 @@
 """SQLAlchemy ORM models (TDS-006)."""
 
+from backend.app.persistence.models.forecast import (
+    FeatureSetModel,
+    FeatureVectorModel,
+    ForecastModel,
+    ForecastStatus,
+    ForecastVersionModel,
+)
 from backend.app.persistence.models.observation import (
     OBSERVATION_RETENTION_YEARS,
     ArrivalObservationModel,
@@ -22,8 +29,18 @@ from backend.app.persistence.models.registry import (
     DEFAULT_FORECAST_HORIZONS,
     CommodityRegistryModel,
 )
+from backend.app.persistence.models.signal import (
+    STRUCTURED_SIGNAL_RETENTION_YEARS,
+    SignalSnapshotModel,
+    StructuredSignalModel,
+)
 
 __all__ = [
+    "FeatureSetModel",
+    "FeatureVectorModel",
+    "ForecastModel",
+    "ForecastStatus",
+    "ForecastVersionModel",
     "ArrivalObservationModel",
     "CommodityModel",
     "CommodityProfileModel",
@@ -38,4 +55,7 @@ __all__ = [
     "PriceObservationModel",
     "RegionModel",
     "RegionType",
+    "STRUCTURED_SIGNAL_RETENTION_YEARS",
+    "SignalSnapshotModel",
+    "StructuredSignalModel",
 ]
